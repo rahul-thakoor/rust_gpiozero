@@ -8,10 +8,10 @@ use gpiozero::led::Led;
 fn main() {
     let led = Led::new(17);
 
-   loop {
+    loop {
             led.on();
             sleep(Duration::from_millis(1500));
             led.off();
             sleep(Duration::from_millis(1500));
-   }
+        }
 }

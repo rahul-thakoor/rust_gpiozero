@@ -12,7 +12,7 @@ impl Led {
     pub fn new(pin:u64) -> Led{
         let mut led_gpio = Pin::new(pin);
         led_gpio.export().expect("Could not export the selected gpio");
-        led_gpio.set_direction(Direction::Out).expect("Could not set led pin to OUTPUT mode");
+        led_gpio.set_direction(Direction::Out).expect("Could not set led pin to Output mode");
         Led{
             pin: led_gpio
         }
