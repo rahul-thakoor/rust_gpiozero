@@ -1,0 +1,8 @@
+[package]
+name = "gpiozero"
+version = "0.1.0"
+authors = ["pi"]
+
+[dependencies]
+sysfs_gpio = "0.5.1"
+
