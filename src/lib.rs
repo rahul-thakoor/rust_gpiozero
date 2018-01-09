@@ -1,8 +1,8 @@
 #![crate_type = "lib"]
 #![crate_name = "gpiozero"]
 
-extern crate sysfs_gpio;
+extern crate rppal;
 
-use sysfs_gpio::*;
+use rppal::*;
 
 pub mod led;

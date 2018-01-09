@@ -14,4 +14,6 @@ description = "A library inspired by gpiozero in Rust."
 
 [dependencies]
 sysfs_gpio = "0.5.1"
+rppal = "0.2.0"
+
 
