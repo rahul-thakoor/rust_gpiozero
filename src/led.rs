@@ -43,4 +43,17 @@ impl Led {
                 
             }
     }
+
+    pub fn toggle(&self){
+        let current_state = self.gpio.read(self.pin)?;
+
+        if current_state == Level::Low {
+            self.gpio.write(self.pin, Level::High);
+        }
+
+        else {
+           self.gpio.write(self.pin, Level::Low)
+        }
+
+    }
 }

@@ -9,5 +9,8 @@ use gpiozero::led::Led;
 fn main() {
     let c = Led::new(17);
 
-    c.blink(500);
+    loop {
+        c.toggle();
+        thread::sleep(Duration::from_millis(1000));
+    }
 }
