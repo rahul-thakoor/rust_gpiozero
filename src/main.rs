@@ -8,7 +8,6 @@ use gpiozero::devices::GPIODevice;
 
 fn main() {
     
-    let d:Device = GPIODevice::new(17);
-
-    d.test();
+    let d = GPIODevice::new(17);
+    println!("{}",d.get_pin());
 }

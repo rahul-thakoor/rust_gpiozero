@@ -44,14 +44,16 @@ impl Led {
             }
     }
 
-    pub fn toggle(&mut self){
-        let low = Level::Low;
-        let high = Level::High;
+    pub fn toggle(&self){
+        let current_state = self.gpio.read(self.pin)?;
 
-        match self.gpio.read(self.pin).expect("Could not read pin level") {
-            low => self.gpio.write(self.pin, Level::High),
-            high => self.gpio.write(self.pin, Level::Low),
-        } 
+        if current_state == Level::Low {
+            self.gpio.write(self.pin, Level::High);
+        }
+
+        else {
+           self.gpio.write(self.pin, Level::Low)
+        }
 
     }
 }
