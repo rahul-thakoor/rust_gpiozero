@@ -1,9 +1,15 @@
 extern crate gpiozero;
 
-use gpiozero::output_devices::OutputDevice;
+use std::thread;
+use std::time::Duration;
+
+use gpiozero::output_devices::LED;
 
 fn main() {
     
-    let mut d = OutputDevice::new(17);
-    d.off();
+    let mut d = LED::new(17);
+    d.blink(1,1);
+    
+
+
 }

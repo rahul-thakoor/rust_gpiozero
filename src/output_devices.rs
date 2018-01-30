@@ -1,6 +1,8 @@
 
 use devices::GPIODevice;
-use sysfs_gpio::{Direction, Pin};
+use sysfs_gpio::Direction;
+use std::thread;
+use std::time::Duration;
 
 #[derive(Debug)]
 pub struct OutputDevice {
@@ -37,4 +39,46 @@ impl OutputDevice {
             Err(e) => println!("error toggling pin: {:?}", e),
         }
     }
+}
+
+/// Represents a generic output device with typical on/off behaviour.
+#[derive(Debug)]
+pub struct DigitalOutputDevice {
+    
+   output: OutputDevice
+
+}
+
+impl DigitalOutputDevice {
+    fn new(pin:u64) -> DigitalOutputDevice{
+        DigitalOutputDevice { output: OutputDevice::new(pin) }
+    }
+
+    fn blink(&mut self, on_time:u64, off_time:u64){
+        loop {
+            self.output.on();
+            thread::sleep(Duration::from_secs(on_time));
+            self.output.off();
+            thread::sleep(Duration::from_secs(off_time));
+        }
+    }
+}
+
+/// Represents a light emitting diode (LED)
+#[derive(Debug)]
+pub struct LED {
+    output: DigitalOutputDevice
+}
+
+impl LED{
+    pub fn new(pin:u64) -> LED{
+        LED {output : DigitalOutputDevice::new(pin)
+        }
+    }
+
+    pub fn blink(&mut self,on_time:u64, off_time:u64){
+        self.output.blink(on_time,off_time);
+    }
+
+    //TODO: is_lit
 }
