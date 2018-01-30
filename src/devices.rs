@@ -9,7 +9,7 @@ pub struct GPIODevice {
 impl GPIODevice {
     pub fn new(pin_num:u64) -> GPIODevice{
         //Create a new Pin with the provided pin_num
-        let mut gpio = Pin::new(pin_num);
+        let gpio = Pin::new(pin_num);
          //check if pin is not already exported
        
         //try to export the selected pin
