@@ -4,6 +4,6 @@ use gpiozero::output_devices::OutputDevice;
 
 fn main() {
     
-    let d = OutputDevice::new(17);
-    d.on();
+    let mut d = OutputDevice::new(17);
+    d.off();
 }

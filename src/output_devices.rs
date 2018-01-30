@@ -3,49 +3,38 @@ use devices::GPIODevice;
 use sysfs_gpio::{Direction, Pin};
 
 #[derive(Debug)]
-struct OutputDevice {
-    pin: GPIODevice
+pub struct OutputDevice {
+    pub gpio: GPIODevice
 }
 
 
 
 impl OutputDevice {
-    fn new(pin:u64) -> OutputDevice{
-        let mut gpio = GPIODevice::new(pin);
+    pub fn new(pin:u64) -> OutputDevice{
+        let gpiodevice = GPIODevice::new(pin);
         // set direction to output
-        gpio.pin.set_direction(Direction::Out).expect("Could not set pin to Output mode");
-        OutputDevice {pin:gpio}
+        gpiodevice.pin.set_direction(Direction::Out).expect("Could not set pin to Output mode");
+        OutputDevice {gpio:gpiodevice}
     }
 
-    ///Returns True if the device is currently active and False otherwise. 
-   
-    fn value(&self) -> bool{
-        if self.pin.get_value() == 1 {
-            return true
-        } else{
-            return false;
-        }
-    }
 
     /// Turns the device on.
 
-    fn on(&mut self){
-        self.pin.set_value(1).expect("Could not turn pin ON");
+    pub fn on(&mut self){
+        self.gpio.pin.set_value(1).expect("Could not turn pin ON");
     }
 
     /// Turns the device off.
-     fn off(&mut self){
-        self.pin.set_value(0).expect("Could not turn pin OFF");
+    pub fn off(&mut self){
+        self.gpio.pin.set_value(0).expect("Could not turn pin OFF");
     }
     
     /// Reverse the state of the device. If it's on, turn it off; if it's off,
     /// turn it on.
-    fn toggle(&mut self){
-        if self.pin.get_value() == 1{
-            self.off()
-        }
-        else{
-            self.on()
+    pub fn toggle(&mut self) {
+        match self.gpio.pin.get_value() {
+            Ok(value) => if value == 1 { self.off() } else { self.on() },
+            Err(e) => println!("error toggling pin: {:?}", e),
         }
     }
 }

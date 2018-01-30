@@ -2,13 +2,13 @@ use sysfs_gpio::Pin;
 
 #[derive(Debug)]
 pub struct GPIODevice {
-    pin: Pin
+    pub pin: Pin
 }
 
 impl GPIODevice {
-    fn new(pin:u64) -> GPIODevice{
+    pub fn new(pin:u64) -> GPIODevice{
         //Create a new Pin with the provided pin_num
-        let gpio = Pin::new(pin);
+        let  gpio = Pin::new(pin);
          //check if pin is not already exported
        
         //try to export the selected pin
