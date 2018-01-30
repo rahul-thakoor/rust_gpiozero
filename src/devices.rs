@@ -2,7 +2,7 @@ use sysfs_gpio::Pin;
 
 #[derive(Debug)]
 pub struct GPIODevice {
-    pin: Pin
+    pub pin: Pin
 }
 
 
@@ -26,5 +26,6 @@ impl GPIODevice {
         }
          
     }
+
 }
 

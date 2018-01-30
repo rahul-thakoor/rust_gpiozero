@@ -9,5 +9,5 @@ use gpiozero::devices::GPIODevice;
 fn main() {
     
     let d = GPIODevice::new(17);
-    println!("{}",d.get_pin());
+    println!("{}",d.pin.get_pin());
 }
