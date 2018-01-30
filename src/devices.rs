@@ -1,4 +1,4 @@
-use sysfs_gpio::{Pin, Direction};
+use sysfs_gpio::Pin;
 
 #[derive(Debug)]
 pub struct GPIODevice {
@@ -15,15 +15,14 @@ impl GPIODevice {
         //try to export the selected pin
         match gpio.export() {
             Ok(()) => println!("Gpio {} exported!", gpio.get_pin()),
-            Err(err) => println!("Gpio {} could not be exported: {}", gpio.get_pin(), err),
-        
+            Err(err) => println!("Gpio could not be exported: {}", err)
         }
         GPIODevice {pin:gpio}
         
     }
 
     pub fn close(&self){
-        if self.pin.is_exported(){
+        if self.pin.is_exported() {
             match self.pin.unexport() {
             Ok(()) => println!("Gpio {} unexported!", gpio.get_pin()),
             Err(err) => println!("Gpio {} could not be unexported: {}", gpio.get_pin(), err),
