@@ -13,7 +13,7 @@ impl GPIODevice {
          //check if pin is not already exported
        
         //try to export the selected pin
-        match gpio.pin.export() {
+        match gpio.export() {
             Ok(()) => println!("Gpio {} exported!", gpio.get_pin()),
             Err(err) => println!("Gpio {} could not be exported: {}", gpio.get_pin(), err),
         
