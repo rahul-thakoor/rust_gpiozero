@@ -13,20 +13,16 @@ impl GPIODevice {
          //check if pin is not already exported
        
         //try to export the selected pin
-        match gpio.export() {
-            Ok(()) => println!("Gpio {} exported!", gpio.get_pin()),
-            Err(err) => println!("Gpio could not be exported: {}", err)
-        }
+        //TODO implement better error handling
+        gpio.export().expect("Could not export the selected gpio");
         GPIODevice {pin:gpio}
         
     }
 
     pub fn close(&self){
         if self.pin.is_exported() {
-            match self.pin.unexport() {
-            Ok(()) => println!("Gpio {} unexported!", gpio.get_pin()),
-            Err(err) => println!("Gpio {} could not be unexported: {}", gpio.get_pin(), err),
-            }
+            //TODO implement better error handling
+            self.pin.unexport().expect("Could not unexport the selected gpio");
         }
          
     }
