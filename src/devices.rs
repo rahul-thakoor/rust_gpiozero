@@ -24,3 +24,4 @@ impl GPIODevice {
         }
     }
 }
+
