@@ -13,7 +13,9 @@ fn main() {
     thread::sleep(Duration::from_secs(3));
     d.off(); */
 
-    let mut d = LED::new(17);
-    d.blink(2,3);
+    let mut d = Buzzer::new(17);
+    d.beep(2,3);
+
+    
 
 }

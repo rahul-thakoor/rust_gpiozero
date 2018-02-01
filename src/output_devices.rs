@@ -196,5 +196,33 @@ impl OutputDeviceTrait for LED {
         self.pin
     }
 }
-    
-   
+
+/// Extends DigitalOutputDevice and represents a digital buzzer component.
+///
+/// Connect the cathode (negative pin) of the buzzer to a ground pin; 
+/// connect the other side to any GPIO pin.
+
+#[derive(Debug)]
+pub struct Buzzer {
+    pin: Pin
+}
+
+impl Buzzer {
+    pub fn new(pin:u64) -> Buzzer{
+        let dout = DigitalOutputDevice::new(pin);
+        Buzzer{
+             pin: dout.pin
+        }
+    }
+
+    pub fn beep(&mut self, on_time:u64, off_time:u64){
+        self.blink(on_time,off_time)
+    }
+}
+
+impl DigitalOutputDeviceTrait for Buzzer {}
+impl OutputDeviceTrait for Buzzer {
+    fn pin(&self) -> Pin {
+        self.pin
+    }
+}
