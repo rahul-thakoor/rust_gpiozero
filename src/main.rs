@@ -3,7 +3,8 @@ extern crate gpiozero;
 use std::thread;
 use std::time::Duration;
 
-use gpiozero::output_devices::*;
+use gpiozero::input_devices::*;
+use gpiozero::traits::*;
 
 
 fn main() {
@@ -13,8 +14,8 @@ fn main() {
     thread::sleep(Duration::from_secs(3));
     d.off(); */
 
-    let mut d = Buzzer::new(17);
-    d.beep(2,3);
+    let mut input = InputDevice::new(17);
+    println!("{}",input.is_active());
 
     
 

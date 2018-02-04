@@ -4,7 +4,7 @@ use sysfs_gpio::{Direction,Pin};
 use std::thread;
 use std::time::Duration;
 
-
+/// Represents a generic GPIO output device.
 #[derive(Debug)]
 pub struct OutputDevice {
     pub pin : Pin

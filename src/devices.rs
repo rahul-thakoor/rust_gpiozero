@@ -1,4 +1,5 @@
 use sysfs_gpio::Pin;
+use traits::Device;
 
 #[derive(Debug)]
 pub struct GPIODevice {
@@ -17,11 +18,13 @@ impl GPIODevice {
         GPIODevice {pin:gpio}
     }
     
-    fn close(&self){
-        if self.pin.is_exported() {
-            //TODO implement better error handling
-            self.pin.unexport().expect("Could not unexport the selected gpio");
-        }
-    }
+    
 }
 
+
+impl Device for GPIODevice {
+    fn pin(&self) -> Pin {
+       self.pin
+    }
+ 
+}
