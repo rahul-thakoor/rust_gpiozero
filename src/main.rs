@@ -14,7 +14,7 @@ fn main() {
     thread::sleep(Duration::from_secs(3));
     d.off(); */
 
-    let mut input = InputDevice::new(17);
+    let mut input = DigitalInputDevice::new(17);
     println!("{}",input.is_active());
 
     

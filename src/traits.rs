@@ -35,6 +35,11 @@ pub trait Device {
 /// Adds edge-detected `when_activated` and `when_deactivated`
 /// events to a device based on changes to the `is_active`
 /// property common to all devices.
-trait EventsTrait {
+pub trait EventsTrait {
+    /// Pause the program until the device is activated
+    fn wait_for_active(&self);
+
+    /// Pause the program until the device is deactivated
+    fn wait_for_inactive(&self);
     
 }
