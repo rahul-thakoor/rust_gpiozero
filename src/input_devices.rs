@@ -1,5 +1,5 @@
 use devices::GPIODevice;
-use traits::Device;
+use traits::*;
 use sysfs_gpio::{Direction,Pin};
 
 
@@ -53,3 +53,9 @@ impl Device for DigitalInputDevice {
 }
 
 /// Give DigitalInputDevice event traits 
+impl EventsTrait for DigitalInputDevice {
+    // add code here
+    fn pin(&self) -> Pin {
+       self.pin
+    }
+}

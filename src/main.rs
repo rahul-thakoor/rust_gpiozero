@@ -15,7 +15,8 @@ fn main() {
     d.off(); */
 
     let mut input = DigitalInputDevice::new(17);
-    println!("{}",input.is_active());
+    input.wait_for_active();
+    println!("input activated");
 
     
 

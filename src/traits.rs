@@ -1,4 +1,5 @@
 use sysfs_gpio::Pin;
+use sysfs_gpio::Edge;
 
 /// Represents a single device of any type; GPIO-based, SPI-based, I2C-based,
 /// etc.  It defines the basic services applicable to all devices
@@ -36,10 +37,23 @@ pub trait Device {
 /// events to a device based on changes to the `is_active`
 /// property common to all devices.
 pub trait EventsTrait {
+    fn pin(&self) -> Pin ;
     /// Pause the program until the device is activated
-    fn wait_for_active(&self);
+    fn wait_for_active(&self) {
+        let pin = self.pin();
+        pin.set_edge(Edge::RisingEdge).expect("Could not set edge");
+        let mut poller = pin.get_poller().expect("Could not get poller");
 
-    /// Pause the program until the device is deactivated
-    fn wait_for_inactive(&self);
+        loop {
+            match poller.poll(1000).expect("Cannot poll") {
+                Some(value) => if value == 1 {break;},
+                None => {
+                    
+                }
+            }
+        }
+
+    }
+
     
 }
