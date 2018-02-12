@@ -43,5 +43,14 @@ pub trait EventsTrait:Device {
 
     }
 
+    /// Pause the program until the device is deactivated
+    fn wait_for_inactive(&self) {
+        
+        loop {
+            if self.is_active() == false {break;}
+        }
+
+    }
+
     
 }
