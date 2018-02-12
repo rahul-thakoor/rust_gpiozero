@@ -26,5 +26,11 @@ impl Device for GPIODevice {
     fn pin(&self) -> Pin {
        self.pin
     }
+
+     /// Returns a value representing the device's state.
+    fn value(&self) -> i8 {
+        let value =  self.pin.get_value().expect("Could not check if device is active");
+        value as i8
+    }
  
 }

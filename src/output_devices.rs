@@ -143,14 +143,6 @@ impl DigitalOutputDevice {
         DigitalOutputDevice { pin: outpin.pin }
     }
 
-    pub fn blink(&mut self, on_time:u64, off_time:u64){
-        loop {
-            self.on();
-            thread::sleep(Duration::from_secs(on_time));
-            self.off();
-            thread::sleep(Duration::from_secs(off_time));
-        }
-    }
 }
 
 impl OutputDeviceTrait for DigitalOutputDevice {

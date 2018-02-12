@@ -18,11 +18,7 @@ pub trait Device {
     }
 
     /// Returns a value representing the device's state.
-    fn value(&self) -> i8 {
-        let pin = self.pin();
-        let value =  pin.get_value().expect("Could not check if device is active");
-        value as i8
-    }
+    fn value(&self) -> i8;
 
 
     /// Returns ``True`` if the device is currently active and ``False``otherwise.
@@ -40,17 +36,9 @@ pub trait EventsTrait {
     fn pin(&self) -> Pin ;
     /// Pause the program until the device is activated
     fn wait_for_active(&self) {
-        let pin = self.pin();
-        pin.set_edge(Edge::RisingEdge).expect("Could not set edge");
-        let mut poller = pin.get_poller().expect("Could not get poller");
-
+        
         loop {
-            match poller.poll(1000).expect("Cannot poll") {
-                Some(value) => if value == 1 {break;},
-                None => {
-                    
-                }
-            }
+            if self.is_active() == true {break;}
         }
 
     }
