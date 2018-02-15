@@ -3,8 +3,8 @@ extern crate gpiozero;
 use std::thread;
 use std::time::Duration;
 
-use gpiozero::input_devices::*;
-use gpiozero::traits::*;
+use gpiozero::*;
+
 
 
 fn main() {
@@ -14,9 +14,9 @@ fn main() {
     thread::sleep(Duration::from_secs(3));
     d.off(); */
 
-    let mut input = DigitalInputDevice::new(17);
-    input.wait_for_inactive();
-    println!("input deactivated");
+    let button = Button::new(17);
+    button.wait_for_press();
+    println!("button pressed");
 
     
 

@@ -46,6 +46,7 @@ pub struct DigitalInputDevice {
 }
 
 impl DigitalInputDevice{
+    /// Create a new Digital Input Device
     pub fn new(pin:u64) -> DigitalInputDevice {
         let inpin = InputDevice::new(pin);
         DigitalInputDevice { pin: inpin.pin }
@@ -72,3 +73,41 @@ impl EventsTrait for DigitalInputDevice {
        self.pin
     }
 }
+
+
+/// Represents a simple push button or switch.
+/// Connect one side of the button to a ground pin, and the other to any GPIO pin
+
+pub struct Button {
+    pin: Pin
+}
+
+impl Device for Button {
+    fn pin(&self) -> Pin {
+       self.pin
+    }
+}
+
+impl EventsTrait for Button {}
+
+impl Button {
+    /// Create a new Button
+    pub fn new(pin:u8) -> Button{
+        let din = DigitalInputDevice::new(pin);
+        Button{
+            pin : din.pin
+        }
+    }
+
+    /// Pause the script until the device is activated
+    pub fn wait_for_press(&self){
+        self.wait_for_active();
+    }
+
+    /// Pause the script until the device is deactivated
+    pub fn wait_for_release(&self){
+        self.wait_for_inactive();
+    }
+
+
+}    
