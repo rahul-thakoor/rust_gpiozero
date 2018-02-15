@@ -33,7 +33,6 @@ pub trait Device {
 /// events to a device based on changes to the `is_active`
 /// property common to all devices.
 pub trait EventsTrait:Device {
-    fn pin(&self) -> Pin ;
     /// Pause the program until the device is activated
     fn wait_for_active(&self) {
         

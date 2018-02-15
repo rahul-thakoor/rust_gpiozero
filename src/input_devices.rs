@@ -67,12 +67,7 @@ impl Device for DigitalInputDevice {
 }
 
 /// Give DigitalInputDevice event traits 
-impl EventsTrait for DigitalInputDevice {
-    // add code here
-    fn pin(&self) -> Pin {
-       self.pin
-    }
-}
+impl EventsTrait for DigitalInputDevice {}
 
 
 /// Represents a simple push button or switch.
@@ -86,13 +81,18 @@ impl Device for Button {
     fn pin(&self) -> Pin {
        self.pin
     }
+    /// Returns a value representing the device's state.
+    fn value(&self) -> i8 { 
+        let value =  self.pin.get_value().expect("Could not check if device is active");
+        value as i8
+    }
 }
 
 impl EventsTrait for Button {}
 
 impl Button {
     /// Create a new Button
-    pub fn new(pin:u8) -> Button{
+    pub fn new(pin:u64) -> Button{
         let din = DigitalInputDevice::new(pin);
         Button{
             pin : din.pin

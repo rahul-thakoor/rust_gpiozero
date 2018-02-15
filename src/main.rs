@@ -3,7 +3,9 @@ extern crate gpiozero;
 use std::thread;
 use std::time::Duration;
 
-use gpiozero::*;
+use gpiozero::input_devices::*;
+use gpiozero::traits::*;
+
 
 
 
