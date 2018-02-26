@@ -111,11 +111,3 @@ impl Button {
 
 
 }    
-
-
-/// Represents a generic input device which takes its value 
-/// from the average of a queue of historical values.
-
-pub struct SmoothedInputDevice;
-
-// TODO
