@@ -4,6 +4,7 @@ use std::thread;
 use std::time::Duration;
 
 use gpiozero::input_devices::*;
+use gpiozero::output_devices::*;
 use gpiozero::traits::*;
 
 
@@ -16,10 +17,12 @@ fn main() {
     thread::sleep(Duration::from_secs(3));
     d.off(); */
 
-    let button = Button::new(17);
+    /* let button = Button::new(17);
     button.wait_for_press();
-    println!("button pressed");
+    println!("button pressed"); */
 
+    let mut motor = Motor::new(17,27);
+    motor.devices.forward.on();
     
 
 }

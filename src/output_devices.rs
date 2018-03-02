@@ -218,3 +218,30 @@ impl OutputDeviceTrait for Buzzer {
         self.pin
     }
 }
+
+
+///  Represents a generic motor connected
+///  to a bi-directional motor driver circuit (i.e. an H-bridge).
+///  This is a composite device.
+pub struct CompositeDevices {
+    pub forward : OutputDevice, 
+    pub backward : OutputDevice
+}
+
+pub struct  Motor {
+    pub devices : CompositeDevices
+    
+}
+
+impl Motor {
+    /// creates a new Motor instance
+    pub fn new(forward_pin:u64, backward_pin:u64) -> Motor{
+        let forward = OutputDevice::new(forward_pin);
+        let backward = OutputDevice::new(backward_pin);
+        let devices = CompositeDevices {forward, backward};
+        Motor {
+            devices
+        }
+        
+    }
+}
