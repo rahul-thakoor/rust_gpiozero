@@ -244,4 +244,24 @@ impl Motor {
         }
         
     }
+
+    /// Drive the motor forwards.
+    pub fn forward(&mut self) {
+        self.devices.backward.off();
+        self.devices.forward.on();
+    }
+
+    /// Drive the motor backwards.
+    pub fn backward(&mut self) {
+        self.devices.forward.off();
+        self.devices.backward.on();
+
+    /// Stop the motor.
+    pub fn stop(&mut self) {
+        self.devices.forward.off();
+        self.devices.backward.off();
+
+        
+    }
+
 }
