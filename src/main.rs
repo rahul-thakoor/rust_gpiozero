@@ -23,6 +23,7 @@ fn main() {
 
     let mut motor = Motor::new(17,27);
     motor.devices.forward.on();
-    
+    thread::sleep(Duration::from_secs(3));
+    motor.devices.forward.off();
 
 }
