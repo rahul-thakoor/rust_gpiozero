@@ -22,8 +22,8 @@ fn main() {
     println!("button pressed"); */
 
     let mut motor = Motor::new(17,27);
-    motor.devices.forward.on();
+    motor.forward();
     thread::sleep(Duration::from_secs(3));
-    motor.devices.forward.off();
+    motor.stop();
 
 }

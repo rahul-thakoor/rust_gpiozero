@@ -255,6 +255,7 @@ impl Motor {
     pub fn backward(&mut self) {
         self.devices.forward.off();
         self.devices.backward.on();
+    }
 
     /// Stop the motor.
     pub fn stop(&mut self) {
