@@ -3,6 +3,7 @@ use devices::GPIODevice;
 use sysfs_gpio::{Direction,Pin};
 use std::thread;
 use std::time::Duration;
+use traits::*;
 
 /// Represents a generic GPIO output device.
 #[derive(Debug)]
@@ -127,6 +128,18 @@ impl OutputDeviceTrait for OutputDevice {
 
 }
 
+impl Device for OutputDevice {
+    fn pin(&self) -> Pin {
+       self.pin
+   }
+
+   /// Returns a value representing the device's state.
+    fn value(&self) -> i8 { 
+        let value =  self.pin.get_value().expect("Could not check if device is active");
+        value as i8
+    }
+}
+
 
 
 /// Represents a generic output device with typical on/off behaviour.
@@ -223,13 +236,16 @@ impl OutputDeviceTrait for Buzzer {
 ///  Represents a generic motor connected
 ///  to a bi-directional motor driver circuit (i.e. an H-bridge).
 ///  This is a composite device.
-pub struct CompositeDevices {
-    pub forward : OutputDevice, 
-    pub backward : OutputDevice
+struct MotorCompositeDevices {
+    forward : OutputDevice, 
+    backward : OutputDevice
 }
 
+// Use type aliasing
+type ComponentDevices = MotorCompositeDevices;
 pub struct  Motor {
-    pub devices : CompositeDevices
+    
+    devices : ComponentDevices
     
 }
 
@@ -238,7 +254,7 @@ impl Motor {
     pub fn new(forward_pin:u64, backward_pin:u64) -> Motor{
         let forward = OutputDevice::new(forward_pin);
         let backward = OutputDevice::new(backward_pin);
-        let devices = CompositeDevices {forward, backward};
+        let devices = ComponentDevices {forward, backward};
         Motor {
             devices
         }
@@ -266,3 +282,11 @@ impl Motor {
     }
 
 }
+
+impl CompositeDevices for Motor {
+   fn close(&self){
+       self.devices.forward.close();
+       self.devices.backward.close();
+   }
+}
+

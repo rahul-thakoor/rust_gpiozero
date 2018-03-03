@@ -53,3 +53,12 @@ pub trait EventsTrait:Device {
 
     
 }
+
+/// Represents a device composed of multiple devices like simple HATs, 
+/// H-bridge motor controllers, robots composed of multiple motors, etc.
+
+pub trait CompositeDevices {
+    /// Shut down the device and release all associated resources.
+    fn close(&self);
+
+}
