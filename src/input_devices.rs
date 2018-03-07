@@ -1,3 +1,4 @@
+//! Input device component interfaces for devices such as `Button`
 use devices::GPIODevice;
 use traits::*;
 use sysfs_gpio::{Direction,Pin};
@@ -118,4 +119,4 @@ impl Button {
 
 pub struct SmoothedInputDevice;
 
-// TODO
+// Todo implement SmoothedInputDevice

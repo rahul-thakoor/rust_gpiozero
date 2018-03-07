@@ -1,3 +1,11 @@
 /target/
 **/*.rs.bk
 Cargo.lock
+src/led_rppal.rs
+src/led_sysfs_gpio.rs
+
+
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/dictionaries
+.idea/vcs.xml

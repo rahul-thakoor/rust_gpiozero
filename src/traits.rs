@@ -1,9 +1,9 @@
+//! Adds important functionalities
 use sysfs_gpio::Pin;
 use sysfs_gpio::Edge;
 
 /// Represents a single device of any type; GPIO-based, SPI-based, I2C-based,
 /// etc.  It defines the basic services applicable to all devices
-
 pub trait Device {
     /// Get the pin
     fn pin(&self) -> Pin ;
@@ -54,9 +54,8 @@ pub trait EventsTrait:Device {
     
 }
 
-/// Represents a device composed of multiple devices like simple HATs, 
+/// Represents a device composed of multiple devices like simple HATs,
 /// H-bridge motor controllers, robots composed of multiple motors, etc.
-
 pub trait CompositeDevices {
     /// Shut down the device and release all associated resources.
     fn close(&self);

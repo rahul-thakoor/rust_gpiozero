@@ -1,4 +1,4 @@
-
+//! Output device component interfaces for devices such as `LED`
 use devices::GPIODevice;
 use sysfs_gpio::{Direction,Pin};
 use std::thread;
@@ -14,84 +14,16 @@ pub struct OutputDevice {
 
 
 impl OutputDevice {
-    pub fn new(pin:u64) -> OutputDevice{
+    pub fn new(pin: u64) -> OutputDevice {
         let gpiodevice = GPIODevice::new(pin);
         // set direction to output
         gpiodevice.pin.set_direction(Direction::Out).expect("Could not set pin to Output mode");
         OutputDevice {
             pin: gpiodevice.pin
-            }
-    }
-
-
-    /* /// Turns the device on.
-
-    pub fn on(&mut self){
-        self.pin.set_value(1).expect("Could not turn pin ON");
-    }
-
-    /// Turns the device off.
-    pub fn off(&mut self){
-        self.pin.set_value(0).expect("Could not turn pin OFF");
-    }
-    
-    /// Reverse the state of the device. If it's on, turn it off; if it's off,
-    /// turn it on.
-    pub fn toggle(&mut self) {
-        match self.pin.get_value() {
-            Ok(value) => if value == 1 { self.off() } else { self.on() },
-            Err(e) => println!("error toggling pin: {:?}", e),
-        }
-    } */
-}
-
-/* /// Represents a generic output device with typical on/off behaviour.
-#[derive(Debug)]
-pub struct DigitalOutputDevice {
-    
-   output: OutputDevice,
-   pin : Pin
-
-}
-
-impl DigitalOutputDevice {
-    fn new(pin:u64) -> DigitalOutputDevice{
-        DigitalOutputDevice { output: OutputDevice::new(pin) }
-    }
-
-    fn blink(&mut self, on_time:u64, off_time:u64){
-        loop {
-            self.output.on();
-            thread::sleep(Duration::from_secs(on_time));
-            self.output.off();
-            thread::sleep(Duration::from_secs(off_time));
         }
     }
 }
 
-/// Represents a light emitting diode (LED)
-#[derive(Debug)]
-pub struct LED {
-    pub output: DigitalOutputDevice,
-    pub pin : Pin
-}
-
-impl LED{
-    pub fn new(pin:u64) -> LED{
-        
-       let dout = DigitalOutputDevice::new(pin);
-       LED {
-            output : dout,
-            pin : dout.output.output.gpio.pin
-       }
-    }
-
-    pub fn blink(&mut self,on_time:u64, off_time:u64){
-        self.output.blink(on_time,off_time);
-    }
-
-    //TODO: is_lit
-} */
 
 pub trait OutputDeviceTrait{
     /// Get the pin
@@ -165,7 +97,7 @@ impl OutputDeviceTrait for DigitalOutputDevice {
     }
 }
 
-/// supertrait
+// supertrait
 pub trait DigitalOutputDeviceTrait: OutputDeviceTrait {
     // add code here
     fn blink(&mut self, on_time:u64, off_time:u64){
@@ -180,6 +112,29 @@ pub trait DigitalOutputDeviceTrait: OutputDeviceTrait {
 }
 
 
+///  Represents a light emitting diode (LED)
+///
+/// # Example
+///  Connect LED as shown below, with cathode(short leg) connected to GND
+///
+/// ```shell
+///           Resistor     LED
+///  Pin 14 o--/\/\/---->|------o GND
+///  ```
+///
+/// ```no_run
+///
+/// extern crate gpiozero;
+///
+/// use gpiozero::*;
+///
+/// fn main() {
+
+///    let mut led = LED::new(14);
+///    led.blink();
+///
+///  }
+///
 
 #[derive(Debug)]
 pub struct LED {
@@ -233,16 +188,18 @@ impl OutputDeviceTrait for Buzzer {
 }
 
 
-///  Represents a generic motor connected
-///  to a bi-directional motor driver circuit (i.e. an H-bridge).
-///  This is a composite device.
+
 struct MotorCompositeDevices {
-    forward : OutputDevice, 
+    forward : OutputDevice,
     backward : OutputDevice
 }
 
 // Use type aliasing
 type ComponentDevices = MotorCompositeDevices;
+///  Represents a generic motor connected
+///  to a bi-directional motor driver circuit (i.e. an H-bridge).
+///  This is a composite device.
+///
 pub struct  Motor {
     
     devices : ComponentDevices

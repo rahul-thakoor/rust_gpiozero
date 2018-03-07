@@ -1,6 +1,8 @@
+//! Describes generic devices such as `GPIODevice` and `CompositeDevice`
 use sysfs_gpio::Pin;
 use traits::Device;
 
+/// Represents a generic GPIO device and provides the services common to all single-pin GPIO devices
 #[derive(Debug)]
 pub struct GPIODevice {
     pub pin: Pin
@@ -13,7 +15,7 @@ impl GPIODevice {
          //check if pin is not already exported
        
         //try to export the selected pin
-        //TODO implement better error handling
+        //Todo implement better error handling
         gpio.export().expect("Could not export the selected gpio");
         GPIODevice {pin:gpio}
     }
@@ -34,3 +36,5 @@ impl Device for GPIODevice {
     }
  
 }
+
+//Todo CompositeDevice
