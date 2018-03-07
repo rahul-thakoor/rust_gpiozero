@@ -3,7 +3,7 @@
 Cargo.lock
 src/led_rppal.rs
 src/led_sysfs_gpio.rs
-
+rust_gpiozero.iml
 
 .idea/workspace.xml
 .idea/tasks.xml
