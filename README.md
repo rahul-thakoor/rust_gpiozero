@@ -1,4 +1,4 @@
-# gpiozero
+# rust_gpiozero
 
 [![Build Status](https://travis-ci.org/rahul-thakoor/rust_gpiozero.svg?branch=master)](https://travis-ci.org/rahul-thakoor/rust_gpiozero)
 
@@ -19,8 +19,8 @@ The library uses [BCM Pin numbering](https://pinout.xyz/)
 
 ```rust
 
-extern crate gpiozero;
-use gpiozero::*;
+extern crate rust_gpiozero;
+use rust_gpiozero::*;
 
 fn main() {
 
@@ -40,8 +40,8 @@ led.blink(2,3);
 
 ### Example : Wait for a Button Press
 ```rust
-extern crate gpiozero;
-use gpiozero::*;
+extern crate rust_gpiozero;
+use rust_gpiozero::*;
 
 
 fn main() {
@@ -82,11 +82,11 @@ fn main() {
 
 ## Install/Use
 
-To use `gpiozero`, first add this to your Cargo.toml:
+To use `rust_gpiozero`, first add this to your Cargo.toml:
 
 ```toml
 [dependencies]
-gpiozero = "0.1.0"
+ rust_gpiozero = "0.1.0"
 ```
 
 

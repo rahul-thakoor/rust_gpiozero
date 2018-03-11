@@ -1,5 +1,5 @@
 #![crate_type = "lib"]
-#![crate_name = "gpiozero"]
+#![crate_name = "rust_gpiozero"]
 
 //! A simple interface to GPIO devices with Raspberry Pi.
 //!
@@ -18,8 +18,8 @@
 //!
 //! ```no_run
 //!
-//! extern crate gpiozero;
-//! use gpiozero::*;
+//! extern crate rust_gpiozero;
+//! use rust_gpiozero::*;
 //!
 //! fn main() {
 //!
@@ -40,8 +40,8 @@
 //!
 //! ```no_run
 //!
-//! extern crate gpiozero;
-//! use gpiozero::*;
+//! extern crate rust_gpiozero;
+//! use rust_gpiozero::*;
 //!
 //! fn main() {
 //! let button = Button::new(17);

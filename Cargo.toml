@@ -1,5 +1,5 @@
 [package]
-name = "gpiozero"
+name = "rust_gpiozero"
 version = "0.1.0"
 authors = ["Rahul Thakoor <rahul.thakoor@gmail.com>"]
 repository = "https://github.com/rahul-thakoor/rust_gpiozero.git"

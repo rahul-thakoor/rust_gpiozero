@@ -1,9 +1,9 @@
-extern crate gpiozero;
+extern crate rust_gpiozero;
 
 use std::thread;
 use std::time::Duration;
 
-use gpiozero::*;
+use rust_gpiozero::*;
 
 
 

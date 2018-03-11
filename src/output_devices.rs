@@ -124,9 +124,9 @@ pub trait DigitalOutputDeviceTrait: OutputDeviceTrait {
 ///
 /// ```no_run
 ///
-/// extern crate gpiozero;
+/// extern crate rust_gpiozero;
 ///
-/// use gpiozero::*;
+/// use rust_gpiozero::*;
 ///
 /// fn main() {
 
