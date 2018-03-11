@@ -1,5 +1,6 @@
 # gpiozero
 
+[![Build Status](https://travis-ci.org/rahul-thakoor/rust_gpiozero.svg?branch=master)](https://travis-ci.org/rahul-thakoor/rust_gpiozero)
 
 A simple interface to GPIO devices with Raspberry Pi.
 

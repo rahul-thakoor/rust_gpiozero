@@ -1,6 +1,5 @@
 //! Adds important functionalities
 use sysfs_gpio::Pin;
-use sysfs_gpio::Edge;
 
 /// Represents a single device of any type; GPIO-based, SPI-based, I2C-based,
 /// etc.  It defines the basic services applicable to all devices

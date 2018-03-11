@@ -18,4 +18,4 @@ sysfs_gpio = "0.5.1"
 linux-embedded-hal = {version="0.1.1",optional=true}
 
 [badges]
-travis-ci = { repository = "...", branch = "master" }
+travis-ci = { repository = "rahul-thakoor/rust_gpiozero", branch = "master" }
