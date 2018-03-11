@@ -1,6 +1,6 @@
 //! Display message in console when a Button is pressed
-extern crate gpiozero;
-use gpiozero::*;
+extern crate rust_gpiozero;
+use rust_gpiozero::*;
 
 
 fn main() {
