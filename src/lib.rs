@@ -11,6 +11,9 @@
 //!
 //! The idea is to get started with physical computing using Rust with little coding
 //! by hiding the underlying complexity.
+//!
+//! The library uses [BCM Pin numbering](https://pinout.xyz/)
+//!
 //! # Example : Blinking an LED
 //!
 //! ```no_run
