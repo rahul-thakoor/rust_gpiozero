@@ -5,8 +5,8 @@ use gpiozero::*;
 
 fn main() {
 
-    // Create a new LED attached to Pin 14
-    let mut led = LED::new(14);
+    // Create a new LED attached to Pin 17
+    let mut led = LED::new(17);
     // blink the LED
     led.blink(2,3);
 
