@@ -1,4 +1,4 @@
-# rust_gpiozero
+# gpiozero
 
 
 A simple interface to GPIO devices with Raspberry Pi.
@@ -96,7 +96,9 @@ The following features are planned :
 
 
 
+## License
 
+[GNU General Public License v3.0](https://github.com/rahul-thakoor/rust_gpiozero/blob/master/LICENSE.md)
 
 
 
