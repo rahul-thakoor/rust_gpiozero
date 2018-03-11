@@ -40,9 +40,16 @@
 //!
 //! ```no_run
 //!
+//! extern crate gpiozero;
+//! use gpiozero::*;
+//!
+//! fn main() {
 //! let button = Button::new(17);
 //! button.wait_for_press();
 //! println!("button pressed");
+//!
+//! }
+//!
 //! ```
 
 extern crate sysfs_gpio;
