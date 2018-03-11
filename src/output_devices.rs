@@ -131,7 +131,7 @@ pub trait DigitalOutputDeviceTrait: OutputDeviceTrait {
 /// fn main() {
 
 ///    let mut led = LED::new(14);
-///    led.blink();
+///    led.blink(1,1);
 ///
 ///  }
 ///

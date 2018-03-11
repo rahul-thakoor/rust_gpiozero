@@ -4,8 +4,7 @@
 //! A simple interface to GPIO devices with Raspberry Pi.
 //!
 //! This library is based on [GPIOZero](https://gpiozero.readthedocs.io/en/stable/index.html)
-//! library created by [Ben Nuttall](https://github.com/bennuttall) of the `Raspberry Pi Foundation`,
-//! [Dave Jones](https://github.com/waveform80), and other contributors.
+//! library.
 //!
 //! _Note: This is a work in progress. The library will eventually support `embedded-hal` based drivers_
 //!
