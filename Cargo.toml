@@ -9,6 +9,7 @@ readme = "README.md"
 documentation = ""
 description = "A library inspired by gpiozero written in Rust."
 keywords = ["embedded-hal", "raspberry pi", "gpiozero"]
+exclude = [".idea/*", "doc/**/*.html"]
 
 [features]
 nightly = ["linux-embedded-hal"]
@@ -19,3 +20,4 @@ linux-embedded-hal = {version="0.1.1",optional=true}
 
 [badges]
 travis-ci = { repository = "rahul-thakoor/rust_gpiozero", branch = "master" }
+
