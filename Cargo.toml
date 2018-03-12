@@ -8,7 +8,7 @@ license = "GPLv3"
 readme = "README.md"
 documentation = ""
 description = "A library inspired by gpiozero written in Rust."
-keywords = ["embedded-hal", "raspberry","pi", "gpiozero", "sysfs_gpio", "rpi"]
+keywords = ["embedded-hal", "raspberry","pi", "gpiozero", "rpi"]
 exclude = [".idea/*", "doc/**/*.html"]
 
 [features]
