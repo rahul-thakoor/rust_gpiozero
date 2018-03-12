@@ -88,7 +88,9 @@ To use `rust_gpiozero`, first add this to your Cargo.toml:
 [dependencies]
  rust_gpiozero = "0.1.0"
 ```
+Compiling your project on a Raspberry Pi directly can take significant time depending on the model. Ideally, you would cross compile your project then run it on the Raspberry Pi. 
 
+[More information](https://github.com/japaric/rust-cross)
 
 ## Features
 
@@ -103,6 +105,8 @@ The following features are planned :
 
 [GNU General Public License v3.0](https://github.com/rahul-thakoor/rust_gpiozero/blob/master/LICENSE.md)
 
+## Contributing
+Thanks for your interest in `rust_gpiozero`. I am a newbie rustacean and just started using the language! I am using this project to learn more about Rust. Feel free to give feedback or send PRs. Your experiences and feedback will also benefit others who use this library.
 
 
 
