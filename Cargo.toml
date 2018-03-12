@@ -6,7 +6,6 @@ repository = "https://github.com/rahul-thakoor/rust_gpiozero.git"
 homepage = "https://github.com/rahul-thakoor/rust_gpiozero.git"
 license = "GPLv3"
 readme = "README.md"
-documentation = ""
 description = "A library inspired by gpiozero written in Rust."
 keywords = ["embedded-hal", "raspberry","pi", "gpiozero", "rpi"]
 exclude = [".idea/*", "doc/**/*.html"]
