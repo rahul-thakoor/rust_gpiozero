@@ -22,11 +22,7 @@ pub trait Device {
     /// Returns ``True`` if the device is currently active and ``False``otherwise.
     fn is_active(&self) -> bool {
         let value = self.value();
-        if value >= 1 {
-            true
-        } else {
-            false
-        }
+        value >= 1
     }
 }
 
@@ -37,7 +33,7 @@ pub trait EventsTrait: Device {
     /// Pause the program until the device is activated
     fn wait_for_active(&self) {
         loop {
-            if self.is_active() == true {
+            if self.is_active() {
                 break;
             }
         }
@@ -46,7 +42,7 @@ pub trait EventsTrait: Device {
     /// Pause the program until the device is deactivated
     fn wait_for_inactive(&self) {
         loop {
-            if self.is_active() == false {
+            if !self.is_active() {
                 break;
             }
         }
