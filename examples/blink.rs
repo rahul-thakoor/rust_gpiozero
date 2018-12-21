@@ -1,6 +1,6 @@
 //! Blinks an LED : on_time: 2 seconds and off_time: 3 seconds
 
-extern crate rust_gpiozero;
+
 use rust_gpiozero::*;
 
 fn main() {

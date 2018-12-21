@@ -1,5 +1,5 @@
 //! Display message in console when a Button is pressed
-extern crate rust_gpiozero;
+
 use rust_gpiozero::*;
 
 

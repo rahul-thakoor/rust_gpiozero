@@ -52,7 +52,7 @@
 //!
 //! ```
 
-extern crate sysfs_gpio;
+
 
 #[cfg(nightly)]
 extern crate embedded_hal as hal;
