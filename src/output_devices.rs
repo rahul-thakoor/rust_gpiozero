@@ -1,9 +1,9 @@
 //! Output device component interfaces for devices such as `LED`
-use devices::GPIODevice;
+use crate::devices::GPIODevice;
 use sysfs_gpio::{Direction,Pin};
 use std::thread;
 use std::time::Duration;
-use traits::*;
+use crate::traits::*;
 
 /// Represents a generic GPIO output device.
 #[derive(Debug)]

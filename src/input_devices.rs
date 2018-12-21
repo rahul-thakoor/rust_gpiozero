@@ -1,6 +1,6 @@
 //! Input device component interfaces for devices such as `Button`
-use devices::GPIODevice;
-use traits::*;
+use crate::devices::GPIODevice;
+use crate::traits::*;
 use sysfs_gpio::{Direction,Pin};
 
 

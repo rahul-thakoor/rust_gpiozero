@@ -1,6 +1,6 @@
 //! Describes generic devices such as `GPIODevice` and `CompositeDevice`
 use sysfs_gpio::Pin;
-use traits::Device;
+use crate::traits::Device;
 
 /// Represents a generic GPIO device and provides the services common to all single-pin GPIO devices
 #[derive(Debug)]
