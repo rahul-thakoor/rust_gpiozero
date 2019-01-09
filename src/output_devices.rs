@@ -1,42 +1,42 @@
 //! Output device component interfaces for devices such as `LED`
-use devices::GPIODevice;
-use sysfs_gpio::{Direction,Pin};
+use crate::devices::GPIODevice;
+use crate::traits::*;
 use std::thread;
 use std::time::Duration;
-use traits::*;
+use sysfs_gpio::{Direction, Pin};
 
 /// Represents a generic GPIO output device.
 #[derive(Debug)]
 pub struct OutputDevice {
-    pub pin : Pin
+    pub pin: Pin,
 }
-
-
 
 impl OutputDevice {
     pub fn new(pin: u64) -> OutputDevice {
         let gpiodevice = GPIODevice::new(pin);
         // set direction to output
-        gpiodevice.pin.set_direction(Direction::Out).expect("Could not set pin to Output mode");
+        gpiodevice
+            .pin
+            .set_direction(Direction::Out)
+            .expect("Could not set pin to Output mode");
         OutputDevice {
-            pin: gpiodevice.pin
+            pin: gpiodevice.pin,
         }
     }
 }
 
-
-pub trait OutputDeviceTrait{
+pub trait OutputDeviceTrait {
     /// Get the pin
-    fn pin(&self) -> Pin ;
+    fn pin(&self) -> Pin;
 
     /// Turns the device on.
-    fn on(&mut self){
+    fn on(&mut self) {
         let pin = self.pin();
         pin.set_value(1).expect("Could not turn pin ON");
     }
 
     /// Turns the device off.
-    fn off(&mut self){
+    fn off(&mut self) {
         let pin = self.pin();
         pin.set_value(0).expect("Could not turn pin OFF");
     }
@@ -46,52 +46,54 @@ pub trait OutputDeviceTrait{
     fn toggle(&mut self) {
         let pin = self.pin();
         match pin.get_value() {
-            Ok(value) => if value == 1 { self.off() } else { self.on() },
+            Ok(value) => {
+                if value == 1 {
+                    self.off()
+                } else {
+                    self.on()
+                }
+            }
             Err(e) => println!("error toggling pin: {:?}", e),
         }
-    } 
+    }
 }
 
 impl OutputDeviceTrait for OutputDevice {
-   
-   fn pin(&self) -> Pin {
-       self.pin
-   }
-
+    fn pin(&self) -> Pin {
+        self.pin
+    }
 }
 
 impl Device for OutputDevice {
     fn pin(&self) -> Pin {
-       self.pin
-   }
+        self.pin
+    }
 
-   /// Returns a value representing the device's state.
-    fn value(&self) -> i8 { 
-        let value =  self.pin.get_value().expect("Could not check if device is active");
+    /// Returns a value representing the device's state.
+    fn value(&self) -> i8 {
+        let value = self
+            .pin
+            .get_value()
+            .expect("Could not check if device is active");
         value as i8
     }
 }
 
-
-
 /// Represents a generic output device with typical on/off behaviour.
-/// Extends behaviour with blink 
+/// Extends behaviour with blink
 #[derive(Debug)]
-pub struct DigitalOutputDevice {   
-   pin : Pin
-
+pub struct DigitalOutputDevice {
+    pin: Pin,
 }
 
 impl DigitalOutputDevice {
-    pub fn new(pin:u64) -> DigitalOutputDevice{
+    pub fn new(pin: u64) -> DigitalOutputDevice {
         let outpin = OutputDevice::new(pin);
         DigitalOutputDevice { pin: outpin.pin }
     }
-
 }
 
 impl OutputDeviceTrait for DigitalOutputDevice {
-
     fn pin(&self) -> Pin {
         self.pin
     }
@@ -100,17 +102,15 @@ impl OutputDeviceTrait for DigitalOutputDevice {
 // supertrait
 pub trait DigitalOutputDeviceTrait: OutputDeviceTrait {
     // add code here
-    fn blink(&mut self, on_time:u64, off_time:u64){
+    fn blink(&mut self, on_time: u64, off_time: u64) {
         loop {
             self.on();
             thread::sleep(Duration::from_secs(on_time));
             self.off();
             thread::sleep(Duration::from_secs(off_time));
         }
-
     }
 }
-
 
 ///  Represents a light emitting diode (LED)
 ///
@@ -138,15 +138,13 @@ pub trait DigitalOutputDeviceTrait: OutputDeviceTrait {
 
 #[derive(Debug)]
 pub struct LED {
-    pin: Pin
+    pin: Pin,
 }
 
-impl LED{
-    pub fn new(pin:u64) -> LED{
+impl LED {
+    pub fn new(pin: u64) -> LED {
         let dout = DigitalOutputDevice::new(pin);
-        LED{
-             pin: dout.pin
-        }
+        LED { pin: dout.pin }
     }
 }
 
@@ -159,24 +157,22 @@ impl OutputDeviceTrait for LED {
 
 /// Extends DigitalOutputDevice and represents a digital buzzer component.
 ///
-/// Connect the cathode (negative pin) of the buzzer to a ground pin; 
+/// Connect the cathode (negative pin) of the buzzer to a ground pin;
 /// connect the other side to any GPIO pin.
 
 #[derive(Debug)]
 pub struct Buzzer {
-    pin: Pin
+    pin: Pin,
 }
 
 impl Buzzer {
-    pub fn new(pin:u64) -> Buzzer{
+    pub fn new(pin: u64) -> Buzzer {
         let dout = DigitalOutputDevice::new(pin);
-        Buzzer{
-             pin: dout.pin
-        }
+        Buzzer { pin: dout.pin }
     }
 
-    pub fn beep(&mut self, on_time:u64, off_time:u64){
-        self.blink(on_time,off_time)
+    pub fn beep(&mut self, on_time: u64, off_time: u64) {
+        self.blink(on_time, off_time)
     }
 }
 
@@ -187,11 +183,9 @@ impl OutputDeviceTrait for Buzzer {
     }
 }
 
-
-
 struct MotorCompositeDevices {
-    forward : OutputDevice,
-    backward : OutputDevice
+    forward: OutputDevice,
+    backward: OutputDevice,
 }
 
 // Use type aliasing
@@ -200,22 +194,17 @@ type ComponentDevices = MotorCompositeDevices;
 ///  to a bi-directional motor driver circuit (i.e. an H-bridge).
 ///  This is a composite device.
 ///
-pub struct  Motor {
-    
-    devices : ComponentDevices
-    
+pub struct Motor {
+    devices: ComponentDevices,
 }
 
 impl Motor {
     /// creates a new Motor instance
-    pub fn new(forward_pin:u64, backward_pin:u64) -> Motor{
+    pub fn new(forward_pin: u64, backward_pin: u64) -> Motor {
         let forward = OutputDevice::new(forward_pin);
         let backward = OutputDevice::new(backward_pin);
-        let devices = ComponentDevices {forward, backward};
-        Motor {
-            devices
-        }
-        
+        let devices = ComponentDevices { forward, backward };
+        Motor { devices }
     }
 
     /// Drive the motor forwards.
@@ -234,16 +223,12 @@ impl Motor {
     pub fn stop(&mut self) {
         self.devices.forward.off();
         self.devices.backward.off();
-
-        
     }
-
 }
 
 impl CompositeDevices for Motor {
-   fn close(&self){
-       self.devices.forward.close();
-       self.devices.backward.close();
-   }
+    fn close(&self) {
+        self.devices.forward.close();
+        self.devices.backward.close();
+    }
 }
-

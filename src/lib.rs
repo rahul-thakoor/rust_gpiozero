@@ -52,20 +52,15 @@
 //!
 //! ```
 
-extern crate sysfs_gpio;
-
 #[cfg(nightly)]
 extern crate embedded_hal as hal;
 
-pub use self::output_devices::*;
 pub use self::devices::*;
-pub use self::traits::*;
 pub use self::input_devices::*;
+pub use self::output_devices::*;
+pub use self::traits::*;
 //pub mod led;
 pub mod devices;
-pub mod output_devices;
 pub mod input_devices;
+pub mod output_devices;
 pub mod traits;
-
-
-
