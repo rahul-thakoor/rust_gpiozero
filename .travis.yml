@@ -1,3 +1,7 @@
+branches:
+  only:
+  - master
+  
 language: rust
 sudo: required
 cache: cargo
