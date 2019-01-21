@@ -7,6 +7,7 @@ use sysfs_gpio::{Direction, Pin};
 use wiringpi::pin::{Gpio, SoftPwmPin};
 
 
+
 /// Represents a generic GPIO output device.
 #[derive(Debug)]
 pub struct OutputDevice {
@@ -288,6 +289,39 @@ impl PWMOutputDevice {
             self.pin.pwm_write((value *100 as f32) as i32);
             thread::sleep(Duration::from_millis((delay * 1000 as f32) as u64) );
         }
+    }
+    /// Make the device turn on and off repeatedly.
+    pub fn blink_nonblocking (self, on_time: f32, off_time: f32, fade_in_time: f32, fade_out_time: f32, n:i32) {
+        let mut sequence: Vec<(f32,f32)> = Vec::new();
+        let fps = 25 as f32;
+
+        // create sequence for fading in
+        for i in 0..fps as i32*fade_in_time as i32 {
+            sequence.push((i as f32 * (1.0 / fps) / fade_in_time,1.0/fps))
+        }
+
+        // allow to stay on for on_time
+        sequence.push((1.0,on_time));
+
+        // create sequence for fading out
+        for i in 0..fps as i32*fade_out_time as i32 {
+            sequence.push((1.0-(i as f32 * (1.0 / fps) / fade_out_time),1.0/fps))
+        }
+
+        // allow to stay off for off_time
+        sequence.push((0.0,off_time));
+        
+        thread::spawn(move || {
+            for _ in 0..n{  
+                for (value,delay) in &sequence{
+                self.pin.pwm_write((value *100 as f32) as i32);
+                thread::sleep(Duration::from_millis((delay * 1000 as f32) as u64) );
+                }
+            }
+        });
+        
+        
+
     }
 }
 
