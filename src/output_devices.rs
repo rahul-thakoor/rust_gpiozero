@@ -5,6 +5,11 @@ use std::thread;
 use std::time::Duration;
 use sysfs_gpio::{Direction, Pin};
 use wiringpi::pin::{Gpio, SoftPwmPin};
+use std::sync::mpsc;
+use std::sync::mpsc::{Receiver,Sender,TryRecvError};
+use std::sync::Arc;
+use std::sync::atomic::{AtomicBool,Ordering};
+use std::sync::{Mutex,MutexGuard};
 
 
 
@@ -240,18 +245,22 @@ impl CompositeDevices for Motor {
 /// Generic output device configured for software pulse-width modulation (PWM).
 /// The pulse width of the signal will be 100μs with a value range of [0,100] (where 0 is a constant low and 100 is a constant high) resulting in a frequenzy of 100 Hz.
 
-pub struct PWMOutputDevice {
-    pin: SoftPwmPin<Gpio>
+
+pub struct PWMOutputDevice{
+    pin:  SoftPwmPin<Gpio>
+
 }
 
 impl PWMOutputDevice {
+    
     /// Creates an instance of PWMOutputDevice 
     pub fn new(pin: u16) -> PWMOutputDevice {
         let pi = wiringpi::setup_gpio();
         let softpwm = pi.soft_pwm_pin(pin);
-        
+
         PWMOutputDevice {
             pin: softpwm
+    
         }
     }
     /// Turns the device on.
@@ -291,7 +300,7 @@ impl PWMOutputDevice {
         }
     }
     /// Make the device turn on and off repeatedly.
-    pub fn blink_nonblocking (self, on_time: f32, off_time: f32, fade_in_time: f32, fade_out_time: f32, n:i32) {
+    pub fn blink_nonblocking(&self, on_time: f32, off_time: f32, fade_in_time: f32, fade_out_time: f32, n:i32) {
         let mut sequence: Vec<(f32,f32)> = Vec::new();
         let fps = 25 as f32;
 
@@ -311,17 +320,107 @@ impl PWMOutputDevice {
         // allow to stay off for off_time
         sequence.push((0.0,off_time));
         
+        //let p = self.clone();
+        
+/*         let pin = Arc::new(Mutex::new(self.pin));
+        let pin_cloned = Arc::clone(&pin);
         thread::spawn(move || {
-            for _ in 0..n{  
+            for _ in 0..n{
+                let mut pinx = pin_cloned.lock().unwrap();
+            
                 for (value,delay) in &sequence{
-                self.pin.pwm_write((value *100 as f32) as i32);
-                thread::sleep(Duration::from_millis((delay * 1000 as f32) as u64) );
-                }
+                    pinx.pwm_write((value *100 as f32) as i32);
+                    thread::sleep(Duration::from_millis((delay * 1000 as f32) as u64) );
+                }    
+            
             }
-        });
-        
-        
-
+        }); */
     }
+
+
 }
 
+
+pub struct PWMOutputDeviceNB{
+    pin:  Arc<Mutex<SoftPwmPin<Gpio>>>,
+    blinking: Arc<AtomicBool>
+    
+
+}
+impl PWMOutputDeviceNB {
+    pub fn new(pin: u16) -> PWMOutputDeviceNB {
+        let pi = wiringpi::setup_gpio();
+        let softpwm = pi.soft_pwm_pin(pin);
+
+        PWMOutputDeviceNB {
+            
+            pin: Arc::new(Mutex::new(pi.soft_pwm_pin(pin))),
+            blinking:Arc::new(AtomicBool::new(false))
+
+
+        }
+    }
+
+    pub fn on(&self){
+        self.pin.lock().unwrap().pwm_write(100);
+    }
+
+    pub fn blink(&mut self,on_time: f32, off_time: f32, fade_in_time: f32, fade_out_time: f32, n:i32){
+        let mut sequence: Vec<(f32,f32)> = Vec::new();
+        let fps = 25 as f32;
+
+        // create sequence for fading in
+        for i in 0..fps as i32*fade_in_time as i32 {
+            sequence.push((i as f32 * (1.0 / fps) / fade_in_time,1.0/fps))
+        }
+
+        // allow to stay on for on_time
+        sequence.push((1.0,on_time));
+
+        // create sequence for fading out
+        for i in 0..fps as i32*fade_out_time as i32 {
+            sequence.push((1.0-(i as f32 * (1.0 / fps) / fade_out_time),1.0/fps))
+        }
+
+        // allow to stay off for off_time
+        sequence.push((0.0,off_time));
+
+
+        let pin = Arc::clone(&self.pin);
+        let blinking = self.blinking.clone();
+        thread::spawn(move || {
+            blinking.store(true, Ordering::Relaxed);
+            for _ in 0..n{
+                // let mut pin = pin.lock().unwrap();
+               let pin = pin.lock().unwrap();
+                
+                for (value,delay) in &sequence{
+                    if !blinking.load(Ordering::Relaxed){
+                        pin.pwm_write(0);
+                        break;
+                    }
+                    pin.pwm_write((value *100 as f32) as i32);
+                    thread::sleep(Duration::from_millis((delay * 1000 as f32) as u64) );
+                }    
+            
+            }
+        });
+
+    }
+
+    pub fn stop(&mut self){
+        // self.handle.unwrap().thread().park();
+        self.blinking.clone().store(false, Ordering::Relaxed);
+/*         let c_mutex = self.pin.clone();
+        let mut lock = c_mutex.try_lock();
+        if let Ok(ref mut mutex) = lock {
+            mutex.pwm_write(0);
+        } else {
+            println!("try_lock failed");
+            
+        }
+        // self.pin.lock().unwrap().pwm_write(0); */
+        println!("stopped");
+        
+    }
+}
