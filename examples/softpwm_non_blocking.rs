@@ -5,15 +5,17 @@ use std::thread;
 
 fn main() {
     // Create a new LED attached to Pin 17
-    let mut led = PWMOutputDeviceNB::new(17);
-    // blink the LED
+    let mut led = PWMOutputDevice::new(17);
+    // blink the LED repeatedly
     
 
-    led.blink(3.0,2.0,5.0,3.0,20);
-    println!("dcfdsf");
-    thread::sleep(Duration::from_secs(10));
-    led.stop();
-    println!("hi2");
+    led.pulse(3.0,1.0,3.0,3.0);
+    println!("pin {}",led.pin());
+
     thread::sleep(Duration::from_secs(25));
+    led.stop();
+    thread::sleep(Duration::from_secs(10));
+
+
 
 }
