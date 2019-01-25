@@ -10,7 +10,7 @@ fn main() {
     // blink the LED repeatedly
 
     // led.pulse(3.0, 1.0, 3.0, 3.0);
-    println!("pin {}", led.pin());
+
     led.on();
     for _ in 0..5 {
         // println!("value {}", led.is_active());
@@ -20,7 +20,9 @@ fn main() {
     thread::sleep(Duration::from_secs(8));
     led.set_value(0.2);
     thread::sleep(Duration::from_secs(3));
-    led.stop();
+
+    led.pulse(3.0, 3.0, Some(5));
+    led.pulse(2.0, 2.0, None);
 
     // wait for key press
     let _ = io::stdin().read(&mut [0u8]).unwrap();

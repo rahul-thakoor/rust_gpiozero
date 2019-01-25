@@ -7,6 +7,6 @@ fn main() {
     let mut led = PWMOutputDevice::new(17);
     // blink the LED
     loop {
-        led.blink(2.0, 2.0, 1.0, 1.0, 5);
+        led.blink(2.0, 2.0, 1.0, 1.0, Some(5));
     }
 }

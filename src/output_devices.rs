@@ -246,6 +246,11 @@ pub struct PWMOutputDevice {
     value: Arc<AtomicIsize>,
 }
 impl PWMOutputDevice {
+    /// Returns a PWMOutputDevice with the pin number given
+    /// # Arguments
+    ///
+    /// * `pin` - The GPIO pin which the device is attached to
+    ///
     pub fn new(pin: u16) -> PWMOutputDevice {
         let pi = wiringpi::setup_gpio();
 
@@ -255,6 +260,140 @@ impl PWMOutputDevice {
             value: Arc::new(AtomicIsize::new(0)),
         }
     }
+
+    /// Turns the device on.
+    pub fn on(&mut self) {
+        self.stop();
+        self.set_value(1.0)
+    }
+
+    /// Turns the device off.
+    pub fn off(&mut self) {
+        self.stop();
+    }
+
+    /// Make the device turn on and off repeatedly
+    /// # Arguments
+    /// * `on_time` - Number of seconds on
+    /// * `off_time` - Number of seconds off
+    /// * `fade_in_time` - Number of seconds to spend fading in
+    /// * `fade_out_time` - Number of seconds to spend fading out
+    /// * `n` - Number of times to blink, None means forever.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use rust_gpiozero::*;
+    /// let mut led = PWMOutputDevice::new(17);
+    /// // Run 5 times
+    /// led.blink(2.0, 2.0, 1.0, 1.0, Some(5))
+    /// ```    
+    pub fn blink(
+        &mut self,
+        on_time: f32,
+        off_time: f32,
+        fade_in_time: f32,
+        fade_out_time: f32,
+        n: Option<i32>,
+    ) {
+        self.stop();
+
+        let fps = 25 as f32;
+        let sequence: Vec<(f32, f32)> =
+            Self::generate_sequence(on_time, off_time, fade_in_time, fade_out_time, fps);
+
+        let pin = Arc::clone(&self.pin);
+        let blinking = self.blinking.clone();
+        let pin_value = self.value.clone();
+
+        thread::spawn(move || {
+            blinking.store(true, Ordering::Relaxed);
+
+            let process = Self::blink_background_process();
+
+            match n {
+                Some(end) => {
+                    for _ in 0..end {
+                        process(&pin, &sequence, &blinking, &pin_value)
+                    }
+                }
+                None => loop {
+                    process(&pin, &sequence, &blinking, &pin_value)
+                },
+            }
+        });
+    }
+
+    /// Make the device fade in and out repeatedly.
+    /// # Arguments
+    /// * `fade_in_time` - Number of seconds to spend fading in
+    /// * `fade_out_time` - Number of seconds to spend fading out
+    /// * `n` - Number of times to pulse; None means forever.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use rust_gpiozero::*;
+    /// let mut led = PWMOutputDevice::new(17);
+    /// // Run forever
+    /// led.pulse(2.0, 2.0, None)
+    /// ```    
+    pub fn pulse(&mut self, fade_in_time: f32, fade_out_time: f32, n: Option<i32>) {
+        self.blink(0.0, 0.0, fade_in_time, fade_out_time, n)
+    }
+
+    /// Get the duty cycle of the PWM device. 0.0 is off, 1.0 is fully on.
+    /// Values in between specify varying levels of power in the device.
+    pub fn value(&self) -> f32 {
+        (self.value.load(Ordering::Relaxed)) as f32 / 100.0
+    }
+
+    /// Returns True if the device is currently active (value is non-zero) and False otherwise.
+    pub fn is_active(&self) -> bool {
+        self.value() > 0.0
+    }
+
+    /// Set the duty cycle of the PWM device. 0.0 is off, 1.0 is fully on.
+    /// Values in between may be specified for varying levels of power in the device.
+    pub fn set_value(&self, value: f32) {
+        let val = (value * 100.0) as i32;
+        self.pin.lock().unwrap().pwm_write(val);
+        self.value.store(val as isize, Ordering::SeqCst);
+    }
+
+    /// Toggle the state of the device.
+    /// If the device is currently off (value is 0.0), this changes it to “fully” on (value is 1.0).
+    /// If the device has a duty cycle (value) of 0.1, this will toggle it to 0.9, and so on.
+    /// Cannot be used if device is blinking or pulsing
+    pub fn toggle(&mut self) {
+        if self.blinking.load(Ordering::SeqCst) {
+            // Do nothing if background thread is blinking device
+            return;
+        } else {
+            let val = 1.0 - self.value();
+            self.set_value(val)
+        }
+    }
+
+    fn blink_background_process(
+    ) -> impl Fn(&Arc<Mutex<SoftPwmPin<Gpio>>>, &Vec<(f32, f32)>, &Arc<AtomicBool>, &Arc<AtomicIsize>)
+    {
+        |pin, sequence, blinking, pin_value| {
+            let pin = pin.lock().unwrap();
+
+            for (value, delay) in sequence {
+                if !blinking.load(Ordering::SeqCst) {
+                    pin.pwm_write(0);
+                    pin_value.store(0, Ordering::SeqCst);
+                    break;
+                }
+                pin.pwm_write((value * 100 as f32) as i32);
+                pin_value.store((value * 100 as f32) as isize, Ordering::Relaxed);
+                thread::sleep(Duration::from_millis((delay * 1000 as f32) as u64));
+            }
+        }
+    }
+
     fn generate_sequence(
         on_time: f32,
         off_time: f32,
@@ -283,109 +422,10 @@ impl PWMOutputDevice {
         sequence
     }
 
-    pub fn on(&mut self) {
-        self.stop();
-        self.set_value(1.0)
-    }
-    pub fn off(&mut self) {
-        self.stop();
-    }
-
-    pub fn blink(
-        &mut self,
-        on_time: f32,
-        off_time: f32,
-        fade_in_time: f32,
-        fade_out_time: f32,
-        n: i32,
-    ) {
-        self.stop();
-
-        let fps = 25 as f32;
-        let sequence: Vec<(f32, f32)> =
-            Self::generate_sequence(on_time, off_time, fade_in_time, fade_out_time, fps);
-
-        let pin = Arc::clone(&self.pin);
-        let blinking = self.blinking.clone();
-        let pin_value = self.value.clone();
-        thread::spawn(move || {
-            blinking.store(true, Ordering::Relaxed);
-            for _ in 0..n {
-                // let mut pin = pin.lock().unwrap();
-                let pin = pin.lock().unwrap();
-
-                for (value, delay) in &sequence {
-                    if !blinking.load(Ordering::Relaxed) {
-                        pin.pwm_write(0);
-                        pin_value.store(0, Ordering::Relaxed);
-                        break;
-                    }
-                    pin.pwm_write((value * 100 as f32) as i32);
-                    pin_value.store((value * 100 as f32) as isize, Ordering::Relaxed);
-                    thread::sleep(Duration::from_millis((delay * 1000 as f32) as u64));
-                }
-            }
-        });
-    }
-    pub fn pulse(&mut self, on_time: f32, off_time: f32, fade_in_time: f32, fade_out_time: f32) {
-        self.stop();
-
-        let fps = 25 as f32;
-        let sequence: Vec<(f32, f32)> =
-            Self::generate_sequence(on_time, off_time, fade_in_time, fade_out_time, fps);
-
-        let pin = Arc::clone(&self.pin);
-        let blinking = self.blinking.clone();
-        let pin_value = self.value.clone();
-        thread::spawn(move || {
-            blinking.store(true, Ordering::Relaxed);
-            loop {
-                let pin = pin.lock().unwrap();
-
-                for (value, delay) in &sequence {
-                    if !blinking.load(Ordering::SeqCst) {
-                        pin.pwm_write(0);
-                        pin_value.store(0, Ordering::SeqCst);
-                        break;
-                    }
-                    pin.pwm_write((value * 100 as f32) as i32);
-                    pin_value.store((value * 100 as f32) as isize, Ordering::Relaxed);
-                    thread::sleep(Duration::from_millis((delay * 1000 as f32) as u64));
-                }
-            }
-        });
-    }
-
-    pub fn stop(&mut self) {
+    fn stop(&mut self) {
         self.blinking.clone().store(false, Ordering::SeqCst);
         self.set_value(0.0)
     }
-
-    pub fn pin(&self) -> i32 {
-        self.pin.lock().unwrap().number()
-    }
-
-    pub fn value(&self) -> f32 {
-        (self.value.load(Ordering::Relaxed)) as f32 / 100.0
-    }
-
-    pub fn is_active(&self) -> bool {
-        self.value() > 0.0
-    }
-
-    pub fn set_value(&self, value: f32) {
-        let val = (value * 100.0) as i32;
-        self.pin.lock().unwrap().pwm_write(val);
-        self.value.store(val as isize, Ordering::SeqCst);
-    }
-
-    pub fn toggle(&mut self) {
-        if self.blinking.load(Ordering::SeqCst) {
-            // Do nothing if background thread is blinking device
-            return;
-        } else {
-            let val = 1.0 - self.value();
-            self.set_value(val)
-        }
-    }
 }
+
+pub type PWMLED = PWMOutputDevice;
