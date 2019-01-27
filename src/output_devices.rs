@@ -428,30 +428,27 @@ impl PWMOutputDevice {
     }
 }
 
-
-
-
 /// Represents a light emitting diode (LED) with variable brightness.
 /// A typical configuration of such a device is to connect a GPIO pin
 /// to the anode (long leg) of the LED, and the cathode (short leg) to ground,
 /// with an optional resistor to prevent the LED from burning out.
-pub struct PWMLED (PWMOutputDevice);
-   
+pub struct PWMLED(PWMOutputDevice);
+
 impl PWMLED {
     /// Returns a PMWLED with the pin number given
     /// # Arguments
     ///
     /// * `pin` - The GPIO pin which the device is attached to
     ///    
-    pub fn new(pin:u16) -> PWMLED{
+    pub fn new(pin: u16) -> PWMLED {
         PWMLED(PWMOutputDevice::new(pin))
     }
 
     /// Returns True if the device is currently active (value is non-zero) and False otherwise.
-    pub fn is_lit(&self) -> bool{
+    pub fn is_lit(&self) -> bool {
         self.0.is_active()
     }
-        /// Make the device turn on and off repeatedly
+    /// Make the device turn on and off repeatedly
     /// # Arguments
     /// * `on_time` - Number of seconds on
     /// * `off_time` - Number of seconds off
@@ -459,17 +456,20 @@ impl PWMLED {
     /// * `fade_out_time` - Number of seconds to spend fading out
     /// * `n` - Number of times to blink, None means forever.
     ///
-    pub fn blink(&mut self,
+    pub fn blink(
+        &mut self,
         on_time: f32,
         off_time: f32,
         fade_in_time: f32,
         fade_out_time: f32,
-        n: Option<i32>){
-            self.0.blink(on_time, off_time, fade_in_time, fade_out_time, n)
-        }
+        n: Option<i32>,
+    ) {
+        self.0
+            .blink(on_time, off_time, fade_in_time, fade_out_time, n)
+    }
 
     /// Turns the device on.
-   pub fn on(&mut self) {
+    pub fn on(&mut self) {
         self.0.on();
     }
 
@@ -484,7 +484,7 @@ impl PWMLED {
     /// * `fade_out_time` - Number of seconds to spend fading out
     /// * `n` - Number of times to pulse; None means forever.
     ///
-    pub fn pulse(&mut self, fade_in_time: f32, fade_out_time: f32, n: Option<i32>){
+    pub fn pulse(&mut self, fade_in_time: f32, fade_out_time: f32, n: Option<i32>) {
         self.0.pulse(fade_in_time, fade_out_time, n);
     }
 
@@ -507,5 +507,4 @@ impl PWMLED {
     pub fn value(&self) -> f32 {
         self.0.value()
     }
-
 }
