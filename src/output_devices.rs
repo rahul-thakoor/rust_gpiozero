@@ -428,4 +428,84 @@ impl PWMOutputDevice {
     }
 }
 
-pub type PWMLED = PWMOutputDevice;
+
+
+
+/// Represents a light emitting diode (LED) with variable brightness.
+/// A typical configuration of such a device is to connect a GPIO pin
+/// to the anode (long leg) of the LED, and the cathode (short leg) to ground,
+/// with an optional resistor to prevent the LED from burning out.
+pub struct PWMLED (PWMOutputDevice);
+   
+impl PWMLED {
+    /// Returns a PMWLED with the pin number given
+    /// # Arguments
+    ///
+    /// * `pin` - The GPIO pin which the device is attached to
+    ///    
+    pub fn new(pin:u16) -> PWMLED{
+        PWMLED(PWMOutputDevice::new(pin))
+    }
+
+    /// Returns True if the device is currently active (value is non-zero) and False otherwise.
+    pub fn is_lit(&self) -> bool{
+        self.0.is_active()
+    }
+        /// Make the device turn on and off repeatedly
+    /// # Arguments
+    /// * `on_time` - Number of seconds on
+    /// * `off_time` - Number of seconds off
+    /// * `fade_in_time` - Number of seconds to spend fading in
+    /// * `fade_out_time` - Number of seconds to spend fading out
+    /// * `n` - Number of times to blink, None means forever.
+    ///
+    pub fn blink(&mut self,
+        on_time: f32,
+        off_time: f32,
+        fade_in_time: f32,
+        fade_out_time: f32,
+        n: Option<i32>){
+            self.0.blink(on_time, off_time, fade_in_time, fade_out_time, n)
+        }
+
+    /// Turns the device on.
+   pub fn on(&mut self) {
+        self.0.on();
+    }
+
+    /// Turns the device off.
+    pub fn off(&mut self) {
+        self.0.off();
+    }
+
+    /// Make the device fade in and out repeatedly.
+    /// # Arguments
+    /// * `fade_in_time` - Number of seconds to spend fading in
+    /// * `fade_out_time` - Number of seconds to spend fading out
+    /// * `n` - Number of times to pulse; None means forever.
+    ///
+    pub fn pulse(&mut self, fade_in_time: f32, fade_out_time: f32, n: Option<i32>){
+        self.0.pulse(fade_in_time, fade_out_time, n);
+    }
+
+    /// Toggle the state of the device.
+    /// If the device is currently off (value is 0.0), this changes it to “fully” on (value is 1.0).
+    /// If the device has a duty cycle (value) of 0.1, this will toggle it to 0.9, and so on.
+    /// Cannot be used if device is blinking or pulsing
+    pub fn toggle(&mut self) {
+        self.0.toggle();
+    }
+
+    /// Set the duty cycle of the PWM device. 0.0 is off, 1.0 is fully on.
+    /// Values in between may be specified for varying levels of power in the device.
+    pub fn set_value(&self, value: f32) {
+        self.0.set_value(value);
+    }
+
+    /// Get the duty cycle of the PWM device. 0.0 is off, 1.0 is fully on.
+    /// Values in between specify varying levels of power in the device.
+    pub fn value(&self) -> f32 {
+        self.0.value()
+    }
+
+}
