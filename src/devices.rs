@@ -1,5 +1,6 @@
 //! Describes generic devices such as `GPIODevice` and `CompositeDevice`
 use crate::traits::Device;
+use rppal::gpio::{Gpio, Level, Pin as PinR};
 use sysfs_gpio::Pin;
 
 /// Represents a generic GPIO device and provides the services common to all single-pin GPIO devices
@@ -36,4 +37,75 @@ impl Device for GPIODevice {
     }
 }
 
-//Todo CompositeDevice
+// ========================================================
+// RPPAL
+// ========================================================
+
+/// Represents a single device of any type; GPIO-based, SPI-based, I2C-based,
+/// etc.  It defines the basic services applicable to all devices
+pub trait DeviceR {
+    /// Shut down the device and release all associated resources.
+    fn close(self);
+
+    /// Returns ``True`` if the device is currently active and ``False`` otherwise.
+    fn is_active(&self) -> bool;
+}
+
+/// Represents a generic GPIO device and provides the services common to all single-pin GPIO devices
+#[derive(Debug)]
+pub struct GpioDeviceR {
+    pin: PinR,
+    active_state: bool,
+    inactive_state: bool,
+}
+
+impl GpioDeviceR {
+    /// Returns a GpioDevice with the pin number given
+    /// # Arguments
+    ///
+    /// * `pin` - The GPIO pin which the device is attached to
+    ///
+    pub fn new(pin: u8) -> GpioDeviceR {
+        match Gpio::new() {
+            Err(e) => panic!("{:?}", e),
+            Ok(gpio) => match gpio.get(pin) {
+                Err(e) => panic!("{:?}", e),
+                Ok(pin) => GpioDeviceR {
+                    pin,
+                    active_state: true,
+                    inactive_state: false,
+                },
+            },
+        }
+    }
+    /// The `Pin` that the device is connected to.
+    pub fn pin(&self) -> u8 {
+        self.pin.pin()
+    }
+
+    fn state_to_value(&self) -> bool {
+        match self.pin.read() {
+            Level::High => self.active_state,
+            Level::Low => !self.active_state,
+        }
+    }
+
+    /// Returns a value representing the device's state.
+    fn value(&self) -> i8 {
+        match self.pin.read() {
+            Level::Low => 0,
+            Level::High => 1,
+        }
+    }
+}
+
+impl DeviceR for GpioDeviceR {
+    /// Returns ``True`` if the device is currently active and ``False`` otherwise.
+    fn is_active(&self) -> bool {
+        self.state_to_value()
+    }
+
+    fn close(self) {
+        drop(self)
+    }
+}

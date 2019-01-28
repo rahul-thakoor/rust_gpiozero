@@ -7,7 +7,7 @@ fn main() {
     let mut led = PWMLED::new(17);
 
     // blink the LED 5 times
-    led.blink(2.0, 2.0, 1.0, 1.0, Some(5));
+    led.blink(2.0, 2.0, 1.0, 1.0, Some(3));
 
     // wait for key press to exit
     let _ = io::stdin().read(&mut [0u8]).unwrap();
