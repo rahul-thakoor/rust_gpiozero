@@ -51,12 +51,35 @@ pub trait DeviceR {
     fn is_active(&self) -> bool;
 }
 
+macro_rules! impl_device {
+    () => {
+    /// Returns ``True`` if the device is currently active and ``False`` otherwise.
+    pub fn is_active(&self) -> bool {
+        self.value()
+    }
+    /// Shut down the device and release all associated resources.
+    pub fn close(self) {
+        drop(self)
+    }
+    }
+}
+
 /// Represents a generic GPIO device and provides the services common to all single-pin GPIO devices
 #[derive(Debug)]
 pub struct GpioDeviceR {
     pin: PinR,
     active_state: bool,
     inactive_state: bool,
+}
+
+macro_rules! impl_gpio_device {
+    () => {
+    /// The `Pin` that the device is connected to.
+    pub fn pin(&self) -> u8 {
+        self.pin.pin()
+    }
+
+    }
 }
 
 impl GpioDeviceR {
@@ -78,9 +101,10 @@ impl GpioDeviceR {
             },
         }
     }
-    /// The `Pin` that the device is connected to.
-    pub fn pin(&self) -> u8 {
-        self.pin.pin()
+
+    /// Returns a value representing the device's state.
+    pub fn value(&self) -> bool {
+        self.state_to_value()
     }
 
     fn state_to_value(&self) -> bool {
@@ -90,22 +114,6 @@ impl GpioDeviceR {
         }
     }
 
-    /// Returns a value representing the device's state.
-    fn value(&self) -> i8 {
-        match self.pin.read() {
-            Level::Low => 0,
-            Level::High => 1,
-        }
-    }
-}
-
-impl DeviceR for GpioDeviceR {
-    /// Returns ``True`` if the device is currently active and ``False`` otherwise.
-    fn is_active(&self) -> bool {
-        self.state_to_value()
-    }
-
-    fn close(self) {
-        drop(self)
-    }
+    impl_device!();
+    impl_gpio_device!();
 }

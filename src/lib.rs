@@ -61,6 +61,7 @@ pub use self::output_devices::*;
 pub use self::output_devices_rppal::*;
 pub use self::traits::*;
 //pub mod led;
+#[macro_use]
 pub mod devices;
 pub mod input_devices;
 pub mod output_devices;
