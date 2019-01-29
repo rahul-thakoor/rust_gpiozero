@@ -55,6 +55,10 @@ macro_rules! impl_output_device {
     pub fn off(&mut self) {
         self.write_state(false)
     }
+    /// Reverse the state of the device. If it's on, turn it off; if it's off, turn it on.
+    pub fn toggle(&mut self) {
+        self.pin.toggle()
+    }
 
     pub fn state_to_value(&self, state: bool) -> bool {
         state == self.active_state
