@@ -4,8 +4,8 @@ use std::sync::atomic::{AtomicBool, AtomicIsize, Ordering};
 use std::sync::Arc;
 use std::sync::Mutex;
 use std::thread;
-use std::time::Duration;
 use std::thread::JoinHandle;
+use std::time::Duration;
 
 /// Represents a generic GPIO output device.
 #[derive(Debug)]
@@ -118,7 +118,7 @@ impl OutputDeviceR {
 pub struct DigitalOutputDeviceR {
     device: Arc<Mutex<OutputDeviceR>>,
     blinking: Arc<AtomicBool>,
-    handle: Option<JoinHandle<()>>
+    handle: Option<JoinHandle<()>>,
 }
 
 macro_rules! impl_digital_output_device {
@@ -132,7 +132,7 @@ macro_rules! impl_digital_output_device {
 
             let device = Arc::clone(&self.device);
             let blinking = Arc::clone(&self.blinking);
-            
+
 
             self.handle = Some(thread::spawn(move || {
                 blinking.store(true, Ordering::SeqCst);
@@ -161,7 +161,7 @@ macro_rules! impl_digital_output_device {
                 },
             }
             }));
-            
+
         }
         /// Returns ``True`` if the device is currently active and ``False`` otherwise.
         pub fn is_active(&self) -> bool{
@@ -234,11 +234,9 @@ impl DigitalOutputDeviceR {
         DigitalOutputDeviceR {
             device: Arc::new(Mutex::new(OutputDeviceR::new(pin))),
             blinking: Arc::new(AtomicBool::new(false)),
-            handle: None
+            handle: None,
         }
     }
-
-
 
     impl_digital_output_device!();
 
@@ -252,7 +250,6 @@ impl DigitalOutputDeviceR {
         self.blinker(on_time, off_time, n)
     }
 }
-
 
 ///  Represents a light emitting diode (LED)
 ///
@@ -269,7 +266,7 @@ impl DigitalOutputDeviceR {
 pub struct LEDR {
     device: Arc<Mutex<OutputDeviceR>>,
     blinking: Arc<AtomicBool>,
-    handle: Option<JoinHandle<()>>
+    handle: Option<JoinHandle<()>>,
 }
 
 impl LEDR {
@@ -277,7 +274,7 @@ impl LEDR {
         LEDR {
             device: Arc::new(Mutex::new(OutputDeviceR::new(pin))),
             blinking: Arc::new(AtomicBool::new(false)),
-            handle: None
+            handle: None,
         }
     }
 
@@ -308,7 +305,7 @@ impl LEDR {
 pub struct BuzzerR {
     device: Arc<Mutex<OutputDeviceR>>,
     blinking: Arc<AtomicBool>,
-    handle: Option<JoinHandle<()>>
+    handle: Option<JoinHandle<()>>,
 }
 
 impl BuzzerR {
@@ -316,7 +313,7 @@ impl BuzzerR {
         BuzzerR {
             device: Arc::new(Mutex::new(OutputDeviceR::new(pin))),
             blinking: Arc::new(AtomicBool::new(false)),
-            handle: None
+            handle: None,
         }
     }
 
