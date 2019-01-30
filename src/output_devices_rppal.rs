@@ -5,6 +5,7 @@ use std::sync::Arc;
 use std::sync::Mutex;
 use std::thread;
 use std::time::Duration;
+use std::thread::JoinHandle;
 
 /// Represents a generic GPIO output device.
 #[derive(Debug)]
@@ -117,12 +118,13 @@ impl OutputDeviceR {
 pub struct DigitalOutputDeviceR {
     device: Arc<Mutex<OutputDeviceR>>,
     blinking: Arc<AtomicBool>,
+    handle: Option<JoinHandle<()>>
 }
 
 macro_rules! impl_digital_output_device {
     () => {
 
-        fn blinker(&self,
+        fn blinker(&mut self,
                 on_time: f32,
                 off_time: f32,
                 n: Option<i32>){
@@ -130,8 +132,9 @@ macro_rules! impl_digital_output_device {
 
             let device = Arc::clone(&self.device);
             let blinking = Arc::clone(&self.blinking);
+            
 
-            thread::spawn(move || {
+            self.handle = Some(thread::spawn(move || {
                 blinking.store(true, Ordering::SeqCst);
                 match n {
                 Some(end) => {
@@ -157,7 +160,8 @@ macro_rules! impl_digital_output_device {
                     thread::sleep(Duration::from_millis((off_time * 1000.0) as u64));
                 },
             }
-            });
+            }));
+            
         }
         /// Returns ``True`` if the device is currently active and ``False`` otherwise.
         pub fn is_active(&self) -> bool{
@@ -213,6 +217,13 @@ macro_rules! impl_digital_output_device {
             drop(self)
         }
 
+        /// Block until background process is done
+        pub fn wait(&mut self){
+            self.handle
+                .take().expect("Called stop on non-running thread")
+                .join().expect("Could not join spawned thread");
+        }
+
 
 
     }
@@ -223,8 +234,11 @@ impl DigitalOutputDeviceR {
         DigitalOutputDeviceR {
             device: Arc::new(Mutex::new(OutputDeviceR::new(pin))),
             blinking: Arc::new(AtomicBool::new(false)),
+            handle: None
         }
     }
+
+
 
     impl_digital_output_device!();
 
@@ -234,10 +248,11 @@ impl DigitalOutputDeviceR {
     /// * `off_time` - Number of seconds off
     /// * `n` - Number of times to blink, None means forever.
     ///
-    pub fn blink(&self, on_time: f32, off_time: f32, n: Option<i32>) {
+    pub fn blink(&mut self, on_time: f32, off_time: f32, n: Option<i32>) {
         self.blinker(on_time, off_time, n)
     }
 }
+
 
 ///  Represents a light emitting diode (LED)
 ///
@@ -254,6 +269,7 @@ impl DigitalOutputDeviceR {
 pub struct LEDR {
     device: Arc<Mutex<OutputDeviceR>>,
     blinking: Arc<AtomicBool>,
+    handle: Option<JoinHandle<()>>
 }
 
 impl LEDR {
@@ -261,6 +277,7 @@ impl LEDR {
         LEDR {
             device: Arc::new(Mutex::new(OutputDeviceR::new(pin))),
             blinking: Arc::new(AtomicBool::new(false)),
+            handle: None
         }
     }
 
@@ -277,7 +294,7 @@ impl LEDR {
     /// * `off_time` - Number of seconds off
     /// * `n` - Number of times to blink, None means forever.
     ///
-    pub fn blink(&self, on_time: f32, off_time: f32, n: Option<i32>) {
+    pub fn blink(&mut self, on_time: f32, off_time: f32, n: Option<i32>) {
         self.blinker(on_time, off_time, n)
     }
 }
@@ -291,6 +308,7 @@ impl LEDR {
 pub struct BuzzerR {
     device: Arc<Mutex<OutputDeviceR>>,
     blinking: Arc<AtomicBool>,
+    handle: Option<JoinHandle<()>>
 }
 
 impl BuzzerR {
@@ -298,6 +316,7 @@ impl BuzzerR {
         BuzzerR {
             device: Arc::new(Mutex::new(OutputDeviceR::new(pin))),
             blinking: Arc::new(AtomicBool::new(false)),
+            handle: None
         }
     }
 
@@ -309,7 +328,7 @@ impl BuzzerR {
     /// * `off_time` - Number of seconds off
     /// * `n` - Number of times to beep, None means forever.
     ///
-    pub fn beep(&self, on_time: f32, off_time: f32, n: Option<i32>) {
+    pub fn beep(&mut self, on_time: f32, off_time: f32, n: Option<i32>) {
         self.blinker(on_time, off_time, n)
     }
 }

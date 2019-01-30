@@ -18,9 +18,11 @@ fn main() {
     println!("{}", o.is_active());
     thread::sleep(Duration::from_secs(3)); */
 
-    let led = LEDR::new(17);
+    let mut led = DigitalOutputDeviceR::new(17);
 
     led.blink(1.0, 1.0, Some(5));
+    // led.wait();
+    println!("done");
 
     let _ = io::stdin().read(&mut [0u8]).unwrap();
 }
