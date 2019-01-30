@@ -127,7 +127,7 @@ macro_rules! impl_digital_output_device {
         /// * `off_time` - Number of seconds off
         /// * `n` - Number of times to blink, None means forever.
         ///
-        pub fn blink(&self,                
+        pub fn blink(&self,
                 on_time: f32,
                 off_time: f32,
                 n: Option<i32>){
@@ -217,7 +217,7 @@ macro_rules! impl_digital_output_device {
         pub fn close(self) {
             drop(self)
         }
-        
+
 
 
     }
