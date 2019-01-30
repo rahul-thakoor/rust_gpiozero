@@ -121,13 +121,8 @@ pub struct DigitalOutputDeviceR {
 
 macro_rules! impl_digital_output_device {
     () => {
-        /// Make the device turn on and off repeatedly in the background
-        /// # Arguments
-        /// * `on_time` - Number of seconds on
-        /// * `off_time` - Number of seconds off
-        /// * `n` - Number of times to blink, None means forever.
-        ///
-        pub fn blink(&self,
+
+        fn blinker(&self,
                 on_time: f32,
                 off_time: f32,
                 n: Option<i32>){
@@ -232,4 +227,100 @@ impl DigitalOutputDeviceR {
     }
 
     impl_digital_output_device!();
+
+    /// Make the device turn on and off repeatedly in the background
+    /// # Arguments
+    /// * `on_time` - Number of seconds on
+    /// * `off_time` - Number of seconds off
+    /// * `n` - Number of times to blink, None means forever.
+    ///
+    pub fn blink(&self,                
+                on_time: f32,
+                off_time: f32,
+                n: Option<i32>){
+                    self.blinker(on_time,off_time,n)
+                }
 }
+
+///  Represents a light emitting diode (LED)
+///
+/// # Example
+///  Connect LED as shown below, with cathode(short leg) connected to GND
+///
+/// ```shell
+///           Resistor     LED
+///  Pin 14 o--/\/\/---->|------o GND
+///  ```
+///
+
+#[derive(Debug)]
+pub struct LEDR {
+    device: Arc<Mutex<OutputDeviceR>>,
+    blinking: Arc<AtomicBool>,
+}
+
+impl LEDR {
+    pub fn new(pin: u8) -> LEDR {
+        LEDR {
+            device: Arc::new(Mutex::new(OutputDeviceR::new(pin))),
+            blinking: Arc::new(AtomicBool::new(false)),
+        }
+    }
+
+    impl_digital_output_device!();
+
+    /// Returns True if the device is currently active and False otherwise.
+    pub fn is_lit(&self) -> bool {
+        self.is_active()
+    }
+
+    /// Make the device turn on and off repeatedly in the background
+    /// # Arguments
+    /// * `on_time` - Number of seconds on
+    /// * `off_time` - Number of seconds off
+    /// * `n` - Number of times to blink, None means forever.
+    ///
+    pub fn blink(&self,                
+                on_time: f32,
+                off_time: f32,
+                n: Option<i32>){
+                    self.blinker(on_time,off_time,n)
+                }
+}
+
+/// Represents a digital buzzer component.
+///
+/// Connect the cathode (negative pin) of the buzzer to a ground pin;
+/// connect the other side to any GPIO pin.
+
+#[derive(Debug)]
+pub struct BuzzerR {
+    device: Arc<Mutex<OutputDeviceR>>,
+    blinking: Arc<AtomicBool>,
+}
+
+impl BuzzerR {
+    pub fn new(pin: u8) -> BuzzerR {
+        BuzzerR {
+            device: Arc::new(Mutex::new(OutputDeviceR::new(pin))),
+            blinking: Arc::new(AtomicBool::new(false)),
+        }
+    }
+
+    impl_digital_output_device!();
+
+
+    /// Make the device turn on and off repeatedly in the background
+    /// # Arguments
+    /// * `on_time` - Number of seconds on
+    /// * `off_time` - Number of seconds off
+    /// * `n` - Number of times to beep, None means forever.
+    ///
+    pub fn beep(&self,                
+                on_time: f32,
+                off_time: f32,
+                n: Option<i32>){
+                    self.blinker(on_time,off_time,n)
+                }
+}
+
