@@ -234,12 +234,9 @@ impl DigitalOutputDeviceR {
     /// * `off_time` - Number of seconds off
     /// * `n` - Number of times to blink, None means forever.
     ///
-    pub fn blink(&self,                
-                on_time: f32,
-                off_time: f32,
-                n: Option<i32>){
-                    self.blinker(on_time,off_time,n)
-                }
+    pub fn blink(&self, on_time: f32, off_time: f32, n: Option<i32>) {
+        self.blinker(on_time, off_time, n)
+    }
 }
 
 ///  Represents a light emitting diode (LED)
@@ -280,12 +277,9 @@ impl LEDR {
     /// * `off_time` - Number of seconds off
     /// * `n` - Number of times to blink, None means forever.
     ///
-    pub fn blink(&self,                
-                on_time: f32,
-                off_time: f32,
-                n: Option<i32>){
-                    self.blinker(on_time,off_time,n)
-                }
+    pub fn blink(&self, on_time: f32, off_time: f32, n: Option<i32>) {
+        self.blinker(on_time, off_time, n)
+    }
 }
 
 /// Represents a digital buzzer component.
@@ -309,18 +303,13 @@ impl BuzzerR {
 
     impl_digital_output_device!();
 
-
     /// Make the device turn on and off repeatedly in the background
     /// # Arguments
     /// * `on_time` - Number of seconds on
     /// * `off_time` - Number of seconds off
     /// * `n` - Number of times to beep, None means forever.
     ///
-    pub fn beep(&self,                
-                on_time: f32,
-                off_time: f32,
-                n: Option<i32>){
-                    self.blinker(on_time,off_time,n)
-                }
+    pub fn beep(&self, on_time: f32, off_time: f32, n: Option<i32>) {
+        self.blinker(on_time, off_time, n)
+    }
 }
-
