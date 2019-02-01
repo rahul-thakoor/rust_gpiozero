@@ -15,6 +15,34 @@ pub struct OutputDeviceR {
     inactive_state: bool,
 }
 
+macro_rules! impl_io_device {
+    () => {
+        fn value_to_state(&self, value: bool) -> bool {
+            if value {
+                self.active_state
+            } else {
+                self.inactive_state
+            }
+        }
+
+        fn state_to_value(&self, state: bool) -> bool {
+            state == self.active_state
+        }
+
+        /// Returns ``True`` if the device is currently active and ``False`` otherwise.
+        pub fn value(&self) -> bool {
+            match self.pin.read() {
+            Level::Low => self.state_to_value(false),
+            Level::High => self.state_to_value(true),
+            }
+        }
+
+
+
+
+    }
+}
+
 macro_rules! impl_output_device {
     () => {
     /// Set the state for active_high
@@ -36,14 +64,6 @@ macro_rules! impl_output_device {
         self.active_state
     }
 
-    fn value_to_state(&self, value: bool) -> bool {
-        if value {
-            self.active_state
-        } else {
-            self.inactive_state
-        }
-    }
-
     /// Turns the device on.
     pub fn on(&mut self) {
         self.write_state(true)
@@ -62,9 +82,7 @@ macro_rules! impl_output_device {
         }
     }
 
-    fn state_to_value(&self, state: bool) -> bool {
-        state == self.active_state
-    }
+
 
     fn write_state(&mut self, value: bool) {
         if self.value_to_state(value) {
@@ -73,13 +91,7 @@ macro_rules! impl_output_device {
             self.pin.set_low()
         }
     }
-    /// Returns ``True`` if the device is currently active and ``False`` otherwise.
-    pub fn value(&self) -> bool {
-        match self.pin.read() {
-            Level::Low => self.state_to_value(false),
-            Level::High => self.state_to_value(true),
-        }
-    }
+
 
 
 
@@ -108,6 +120,7 @@ impl OutputDeviceR {
 
     impl_device!();
     impl_gpio_device!();
+    impl_io_device!();
     impl_output_device!();
 }
 

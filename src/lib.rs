@@ -59,11 +59,14 @@ pub use self::devices::*;
 pub use self::input_devices::*;
 pub use self::output_devices::*;
 pub use self::output_devices_rppal::*;
+pub use self::input_devices_rppal::*;
 pub use self::traits::*;
 //pub mod led;
 #[macro_use]
 pub mod devices;
 pub mod input_devices;
 pub mod output_devices;
+#[macro_use]
 pub mod output_devices_rppal;
+pub mod input_devices_rppal;
 pub mod traits;
