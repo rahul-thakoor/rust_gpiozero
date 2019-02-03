@@ -132,7 +132,7 @@ pub struct DigitalOutputDeviceR {
     device: Arc<Mutex<OutputDeviceR>>,
     blinking: Arc<AtomicBool>,
     handle: Option<JoinHandle<()>>,
-    blink_count: Option<i32>
+    blink_count: Option<i32>,
 }
 
 macro_rules! impl_digital_output_device {
@@ -238,7 +238,7 @@ macro_rules! impl_digital_output_device {
                 .join().expect("Could not join spawned thread");
         }
 
-        
+
     }
 }
 
@@ -248,29 +248,28 @@ impl DigitalOutputDeviceR {
             device: Arc::new(Mutex::new(OutputDeviceR::new(pin))),
             blinking: Arc::new(AtomicBool::new(false)),
             handle: None,
-            blink_count: None
+            blink_count: None,
         }
     }
 
     impl_digital_output_device!();
 
-    /// Make the device turn on and off repeatedly in the background. 
+    /// Make the device turn on and off repeatedly in the background.
     /// Use `set_blink_count` to set the number of times to blink the device
     /// # Arguments
     /// * `on_time` - Number of seconds on
     /// * `off_time` - Number of seconds off
     ///
     pub fn blink(&mut self, on_time: f32, off_time: f32) {
-        match self.blink_count{
+        match self.blink_count {
             None => self.blinker(on_time, off_time, None),
-            Some(n) => self.blinker(on_time, off_time, Some(n))
+            Some(n) => self.blinker(on_time, off_time, Some(n)),
         }
-        
     }
     /// Set the number of times to blink the device
     /// # Arguments
     /// * `n` - Number of times to blink
-    pub fn set_blink_count(&mut self, n:i32){
+    pub fn set_blink_count(&mut self, n: i32) {
         self.blink_count = Some(n)
     }
 }
@@ -291,7 +290,7 @@ pub struct LEDR {
     device: Arc<Mutex<OutputDeviceR>>,
     blinking: Arc<AtomicBool>,
     handle: Option<JoinHandle<()>>,
-    blink_count: Option<i32>
+    blink_count: Option<i32>,
 }
 
 impl LEDR {
@@ -300,7 +299,7 @@ impl LEDR {
             device: Arc::new(Mutex::new(OutputDeviceR::new(pin))),
             blinking: Arc::new(AtomicBool::new(false)),
             handle: None,
-            blink_count: None
+            blink_count: None,
         }
     }
 
@@ -311,23 +310,22 @@ impl LEDR {
         self.is_active()
     }
 
-    /// Make the device turn on and off repeatedly in the background. 
+    /// Make the device turn on and off repeatedly in the background.
     /// Use `set_blink_count` to set the number of times to blink the device
     /// # Arguments
     /// * `on_time` - Number of seconds on
     /// * `off_time` - Number of seconds off
     ///
     pub fn blink(&mut self, on_time: f32, off_time: f32) {
-        match self.blink_count{
+        match self.blink_count {
             None => self.blinker(on_time, off_time, None),
-            Some(n) => self.blinker(on_time, off_time, Some(n))
+            Some(n) => self.blinker(on_time, off_time, Some(n)),
         }
-        
     }
     /// Set the number of times to blink the device
     /// # Arguments
     /// * `n` - Number of times to blink
-    pub fn set_blink_count(&mut self, n:i32){
+    pub fn set_blink_count(&mut self, n: i32) {
         self.blink_count = Some(n)
     }
 }
@@ -342,7 +340,7 @@ pub struct BuzzerR {
     device: Arc<Mutex<OutputDeviceR>>,
     blinking: Arc<AtomicBool>,
     handle: Option<JoinHandle<()>>,
-    blink_count: Option<i32>
+    blink_count: Option<i32>,
 }
 
 impl BuzzerR {
@@ -351,29 +349,28 @@ impl BuzzerR {
             device: Arc::new(Mutex::new(OutputDeviceR::new(pin))),
             blinking: Arc::new(AtomicBool::new(false)),
             handle: None,
-            blink_count: None
+            blink_count: None,
         }
     }
 
     impl_digital_output_device!();
 
-    /// Make the device turn on and off repeatedly in the background. 
+    /// Make the device turn on and off repeatedly in the background.
     /// Use `set_beep_count` to set the number of times to beep the device
     /// # Arguments
     /// * `on_time` - Number of seconds on
     /// * `off_time` - Number of seconds off
     ///
     pub fn beep(&mut self, on_time: f32, off_time: f32) {
-        match self.blink_count{
+        match self.blink_count {
             None => self.blinker(on_time, off_time, None),
-            Some(n) => self.blinker(on_time, off_time, Some(n))
+            Some(n) => self.blinker(on_time, off_time, Some(n)),
         }
-        
     }
     /// Set the number of times to beep the device
     /// # Arguments
     /// * `n` - Number of times to beep
-    pub fn set_beep_count(&mut self, n:i32){
+    pub fn set_beep_count(&mut self, n: i32) {
         self.blink_count = Some(n)
     }
 }

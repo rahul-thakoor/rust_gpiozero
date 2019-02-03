@@ -57,9 +57,9 @@ extern crate embedded_hal as hal;
 
 pub use self::devices::*;
 pub use self::input_devices::*;
+pub use self::input_devices_rppal::*;
 pub use self::output_devices::*;
 pub use self::output_devices_rppal::*;
-pub use self::input_devices_rppal::*;
 pub use self::traits::*;
 //pub mod led;
 #[macro_use]

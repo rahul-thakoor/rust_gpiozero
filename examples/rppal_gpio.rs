@@ -23,12 +23,12 @@ fn main() {
     // led.blink(1.0, 1.0, Some(5));
     // led.wait();
 
-    let input = InputDeviceR::new_with_pullup(2);
-    loop{
-        println!("{}",input.is_active());
-        thread::sleep(Duration::from_secs(3));
-    }
-    
+    // let mut input = DigitalInputDeviceR::new_with_pullup(2);
+    let mut input = DigitalInputDeviceR::new_with_pullup(23);
+    input.wait_for_active(None);
+    println!("activated");
+
+
 
     let _ = io::stdin().read(&mut [0u8]).unwrap();
 }
