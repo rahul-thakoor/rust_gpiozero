@@ -374,3 +374,96 @@ impl BuzzerR {
         self.blink_count = Some(n)
     }
 }
+
+/// Generic output device configured for software pulse-width modulation (PWM).
+/// The pulse width of the signal will be 100μs with a value range of [0,100] (where 0 is a constant low and 100 is a constant high) resulting in a frequenzy of 100 Hz.
+pub struct PWMOutputDeviceR {
+    device: Arc<Mutex<OutputDeviceR>>,
+    blinking: Arc<AtomicBool>,
+    handle: Option<JoinHandle<()>>,
+    blink_count: Option<i32>
+}
+
+impl PWMOutputDeviceR{
+    pub fn new(pin:u8) -> PWMOutputDeviceR{
+            PWMOutputDeviceR{
+                    device: Arc::new(Mutex::new(OutputDeviceR::new(pin))),
+                    blinking: Arc::new(AtomicBool::new(false)),
+                    handle: None,
+                    blink_count: None
+            }
+    }
+
+
+    /// Set the duty cycle of the PWM device. 0.0 is off, 1.0 is fully on.
+    /// Values in between may be specified for varying levels of power in the device.
+    pub fn set_value(&mut self, duty:f64){
+        self.device.lock().unwrap().pin.set_pwm_frequency(100.0, duty).unwrap();
+
+    }
+
+    pub fn blinker(&mut self,
+        on_time: f32,
+        off_time: f32,
+        fade_in_time: f32,
+        fade_out_time: f32,
+        n: Option<i32>
+        ){
+        let mut sequence: Vec<(f32, f32)> = Vec::new();
+        let fps = 25.0;
+        // create sequence for fading in
+        for i in 0..fps as i32 * fade_in_time as i32 {
+            sequence.push((i as f32 * (1.0 / fps) / fade_in_time, 1.0 / fps))
+        }
+
+        // allow to stay on for on_time
+        sequence.push((1.0, on_time));
+
+        // create sequence for fading out
+        for i in 0..fps as i32 * fade_out_time as i32 {
+            sequence.push((1.0 - (i as f32 * (1.0 / fps) / fade_out_time), 1.0 / fps))
+        }
+
+        // allow to stay off for off_time
+        sequence.push((0.0, off_time));
+
+
+        let device = Arc::clone(&self.device);
+        let blinking = Arc::clone(&self.blinking);
+
+        self.handle = Some(thread::spawn(move || {
+            blinking.store(true, Ordering::SeqCst);
+            match n {
+            Some(end) => {
+                for _ in 0..end {
+                    for (value, delay) in &sequence {
+                        if !blinking.load(Ordering::SeqCst) {
+                            // device.lock().unwrap().off();
+                            break;
+                        }
+                        device.lock().unwrap().pin.set_pwm_frequency(100.0, *value as f64).unwrap();
+                        thread::sleep(Duration::from_millis((delay * 1000 as f32) as u64));
+
+                    }
+                }
+            }
+            None => loop {
+                for (value, delay) in &sequence {
+                    if !blinking.load(Ordering::SeqCst) {
+                        // device.lock().unwrap().off();
+                        break;
+                    }
+                    device.lock().unwrap().pin.set_pwm_frequency(100.0, *value as f64).unwrap();
+                    thread::sleep(Duration::from_millis((delay * 1000 as f32) as u64));
+
+                }
+            },
+            }
+        }));
+
+
+
+        }
+
+
+}

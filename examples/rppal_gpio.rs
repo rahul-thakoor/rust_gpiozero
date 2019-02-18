@@ -24,9 +24,8 @@ fn main() {
     // led.wait();
 
     // let mut input = DigitalInputDeviceR::new_with_pullup(2);
-    let mut input = ButtonR::new(23);
-    input.wait_for_release(None);
-    println!("released");
+    let mut led = PWMOutputDeviceR::new(23);
+    led.blinker(1.0,2.0,2.0,1.0,None);
 
 
 
