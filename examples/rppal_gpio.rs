@@ -24,9 +24,9 @@ fn main() {
     // led.wait();
 
     // let mut input = DigitalInputDeviceR::new_with_pullup(2);
-    let mut input = DigitalInputDeviceR::new_with_pullup(23);
-    input.wait_for_active(None);
-    println!("activated");
+    let mut input = ButtonR::new(23);
+    input.wait_for_release(None);
+    println!("released");
 
 
 
