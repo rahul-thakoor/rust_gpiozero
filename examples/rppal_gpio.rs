@@ -25,9 +25,10 @@ fn main() {
 
     // let mut input = DigitalInputDeviceR::new_with_pullup(2);
     let mut led = PWMOutputDeviceR::new(23);
-    led.blinker(1.0,2.0,2.0,1.0,None);
+    led.blink(2.0, 2.0, 1.0, 1.0);
 
 
 
     let _ = io::stdin().read(&mut [0u8]).unwrap();
+    led.off();
 }
