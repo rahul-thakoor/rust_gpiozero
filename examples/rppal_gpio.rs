@@ -27,8 +27,6 @@ fn main() {
     let mut led = PWMOutputDeviceR::new(23);
     led.blink(2.0, 2.0, 1.0, 1.0);
 
-
-
     let _ = io::stdin().read(&mut [0u8]).unwrap();
     led.off();
 }

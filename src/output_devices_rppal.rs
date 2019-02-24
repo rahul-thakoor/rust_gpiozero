@@ -94,7 +94,7 @@ macro_rules! impl_output_device {
 
 impl OutputDeviceR {
     /// Returns an OutputDevice with the pin number given
-    
+
     ///
     /// * `pin` - The GPIO pin which the device is attached to
     ///  
@@ -372,8 +372,7 @@ pub struct PWMOutputDeviceR {
     blink_count: Option<i32>,
     active_state: bool,
     inactive_state: bool,
-
-            }
+}
 
 macro_rules! impl_pwm_device {
     () => {
@@ -500,21 +499,20 @@ macro_rules! impl_pwm_device {
     }
 }
 
-impl PWMOutputDeviceR{
+impl PWMOutputDeviceR {
     /// Returns a PWMOutputDevice with the pin number given
     ///
     /// * `pin` - The GPIO pin which the device is attached to
     ///  
-    pub fn new(pin:u8) -> PWMOutputDeviceR{
-            PWMOutputDeviceR{
-                    device: Arc::new(Mutex::new(OutputDeviceR::new(pin))),
-                    blinking: Arc::new(AtomicBool::new(false)),
-                    handle: None,
-                    blink_count: None,
-                    active_state: true,
-                    inactive_state: false,
-
-            }
+    pub fn new(pin: u8) -> PWMOutputDeviceR {
+        PWMOutputDeviceR {
+            device: Arc::new(Mutex::new(OutputDeviceR::new(pin))),
+            blinking: Arc::new(AtomicBool::new(false)),
+            handle: None,
+            blink_count: None,
+            active_state: true,
+            inactive_state: false,
+        }
     }
 
     impl_pwm_device!();
@@ -534,8 +532,8 @@ impl PWMOutputDeviceR{
     /// ```    
     pub fn blink(&mut self, on_time: f32, off_time: f32, fade_in_time: f32, fade_out_time: f32) {
         match self.blink_count {
-            None => self.blinker(on_time, off_time,fade_in_time,fade_out_time, None),
-            Some(n) => self.blinker(on_time, off_time,fade_in_time,fade_out_time, Some(n)),
+            None => self.blinker(on_time, off_time, fade_in_time, fade_out_time, None),
+            Some(n) => self.blinker(on_time, off_time, fade_in_time, fade_out_time, Some(n)),
         }
     }
 
@@ -554,7 +552,6 @@ impl PWMOutputDeviceR{
     pub fn pulse(&mut self, fade_in_time: f32, fade_out_time: f32) {
         self.blink(0.0, 0.0, fade_in_time, fade_out_time)
     }
-
 }
 
 /// Represents a light emitting diode (LED) with variable brightness.
@@ -578,11 +575,8 @@ impl PWMLEDR {
     /// * `fade_in_time` - Number of seconds to spend fading in
     /// * `fade_out_time` - Number of seconds to spend fading out
     ///
-    pub fn blink(
-        &mut self, on_time: f32, off_time: f32, fade_in_time: f32, fade_out_time: f32
-    ) {
-        self.0
-            .blink(on_time, off_time, fade_in_time, fade_out_time)
+    pub fn blink(&mut self, on_time: f32, off_time: f32, fade_in_time: f32, fade_out_time: f32) {
+        self.0.blink(on_time, off_time, fade_in_time, fade_out_time)
     }
 
     /// Turns the device on.
@@ -608,10 +602,9 @@ impl PWMLEDR {
     pub fn set_value(&mut self, value: f64) {
         self.0.set_value(value);
     }
-
 }
 
-struct MotorCompositeDevice (PWMOutputDeviceR,PWMOutputDeviceR);
+struct MotorCompositeDevice(PWMOutputDeviceR, PWMOutputDeviceR);
 
 ///  Represents a generic motor connected
 ///  to a bi-directional motor driver circuit (i.e. an H-bridge).
@@ -619,19 +612,19 @@ struct MotorCompositeDevice (PWMOutputDeviceR,PWMOutputDeviceR);
 ///  to the controller; connect the outputs of the controller board to the two terminals of the motor; connect the inputs of the controller board to two GPIO pins.
 pub struct MotorR {
     devices: MotorCompositeDevice,
-    speed: f64
+    speed: f64,
 }
 
-impl MotorR{
+impl MotorR {
     /// creates a new Motor instance
     /// * `forward_pin` - The GPIO pin that the forward input of the motor driver chip is connected to
     /// * `backward` - The GPIO pin that the backward input of the motor driver chip is connected to
     pub fn new(forward_pin: u8, backward_pin: u8) -> MotorR {
         let forward = PWMOutputDeviceR::new(forward_pin);
         let backward = PWMOutputDeviceR::new(backward_pin);
-        MotorR{
-            devices: MotorCompositeDevice(forward,backward),
-            speed: 1.0
+        MotorR {
+            devices: MotorCompositeDevice(forward, backward),
+            speed: 1.0,
         }
     }
 
@@ -655,10 +648,10 @@ impl MotorR{
         self.devices.1.off();
     }
 
-    /// The speed at which the motor should turn. 
-    /// Can be any value between 0.0 (stopped) and the default 1.0 (maximum speed) 
-    pub fn set_speed(&mut self, speed:f64){
-        if !(speed >= 0.0 && speed<=1.0) {
+    /// The speed at which the motor should turn.
+    /// Can be any value between 0.0 (stopped) and the default 1.0 (maximum speed)
+    pub fn set_speed(&mut self, speed: f64) {
+        if !(speed >= 0.0 && speed <= 1.0) {
             println!("Speed must be between 0.0 and 1.0");
             return;
         }
