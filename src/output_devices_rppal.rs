@@ -661,24 +661,22 @@ impl MotorR {
     }
 }
 
-
 /// Represents a PWM-controlled servo motor connected to a GPIO pin.
 //reference :https://github.com/golemparts/rppal/blob/master/examples/gpio_servo_softpwm.rs
 pub struct Servo {
     pin: IoPin,
     min_pulse_width: u64,
     max_pulse_width: u64,
-    frame_width: u64
-
+    frame_width: u64,
 }
 
-impl Servo{
-    /// Returns a Servo with the pin number given with default `min_pulse_width` of 1ms, 
+impl Servo {
+    /// Returns a Servo with the pin number given with default `min_pulse_width` of 1ms,
     /// `max_pulse_width` of 2ms and `frame_width` of 20ms
     ///
     /// * `pin` - The GPIO pin which the device is attached to
     ///  
-    pub fn new(pin:u8) -> Servo{
+    pub fn new(pin: u8) -> Servo {
         match Gpio::new() {
             Err(e) => panic!("{:?}", e),
             Ok(gpio) => match gpio.get(pin) {
@@ -687,77 +685,87 @@ impl Servo{
                     pin: pin.into_io(Mode::Output),
                     min_pulse_width: 1000,
                     max_pulse_width: 2000,
-                    frame_width: 20
+                    frame_width: 20,
                 },
             },
         }
     }
 
     /// Set the servo to its minimum position.
-    pub fn min(&mut self){
-if self.pin.set_pwm(Duration::from_millis(self.frame_width), Duration::from_micros(self.min_pulse_width)).is_err() { println!("Failed to set servo to minimum position") }
+    pub fn min(&mut self) {
+        if self
+            .pin
+            .set_pwm(
+                Duration::from_millis(self.frame_width),
+                Duration::from_micros(self.min_pulse_width),
+            )
+            .is_err()
+        {
+            println!("Failed to set servo to minimum position")
+        }
     }
 
     /// Set the servo to its maximum position.
-    pub fn max(&mut self){
-        if self.pin.set_pwm(Duration::from_millis(self.frame_width), Duration::from_micros(self.max_pulse_width)).is_err() { println!("Failed to set servo to maximum position") }
+    pub fn max(&mut self) {
+        if self
+            .pin
+            .set_pwm(
+                Duration::from_millis(self.frame_width),
+                Duration::from_micros(self.max_pulse_width),
+            )
+            .is_err()
+        {
+            println!("Failed to set servo to maximum position")
+        }
     }
 
     /// Set the servo to its neutral position.
-    pub fn mid(&mut self){
-        let mid_value = (self.min_pulse_width + self.max_pulse_width) / 2 ;
-        if self.pin.set_pwm(Duration::from_millis(self.frame_width), Duration::from_micros(mid_value)).is_err() { println!("Failed to set servo to neutral position") 
+    pub fn mid(&mut self) {
+        let mid_value = (self.min_pulse_width + self.max_pulse_width) / 2;
+        if self
+            .pin
+            .set_pwm(
+                Duration::from_millis(self.frame_width),
+                Duration::from_micros(mid_value),
+            )
+            .is_err()
+        {
+            println!("Failed to set servo to neutral position")
         }
     }
 
     /// Set the servo's minimum pulse width
-    pub fn set_min_pulse_width(&mut self, value:u64){
-        if value >= self.max_pulse_width{
+    pub fn set_min_pulse_width(&mut self, value: u64) {
+        if value >= self.max_pulse_width {
             println!("min_pulse_width must be less than max_pulse_width");
             return;
-        }else{
-                   self.min_pulse_width = value 
+        } else {
+            self.min_pulse_width = value
         }
-
     }
     /// Set the servo's maximum pulse width
-    pub fn set_max_pulse_width(&mut self, value:u64){
-        if value >= self.frame_width{
+    pub fn set_max_pulse_width(&mut self, value: u64) {
+        if value >= self.frame_width {
             println!("max_pulse_width must be less than frame_width");
             return;
-        }else{
-            self.max_pulse_width = value 
+        } else {
+            self.max_pulse_width = value
         }
-
     }
     /// Set the servo's frame width(The time between control pulses, measured in milliseconds.)
-    pub fn set_frame_width(&mut self, value:u64){
-
+    pub fn set_frame_width(&mut self, value: u64) {
         self.frame_width = value;
-
     }
     /// Get the servo's minimum pulse width
-    pub fn get_min_pulse_width(&mut self) -> u64{
-
-        self.min_pulse_width 
-        
-
+    pub fn get_min_pulse_width(&mut self) -> u64 {
+        self.min_pulse_width
     }
     /// Get the servo's maximum pulse width
-    pub fn get_max_pulse_width(&mut self) -> u64{
-
-            self.max_pulse_width 
-        
-
+    pub fn get_max_pulse_width(&mut self) -> u64 {
+        self.max_pulse_width
     }
     /// Get the servo's frame width(The time between control pulses, measured in milliseconds.)
-    pub fn get_frame_width(&mut self) -> u64{
-
+    pub fn get_frame_width(&mut self) -> u64 {
         self.frame_width
-
     }
-
-
-
-
 }
