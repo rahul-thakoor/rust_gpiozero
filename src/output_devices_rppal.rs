@@ -94,7 +94,7 @@ macro_rules! impl_output_device {
 
 impl OutputDeviceR {
     /// Returns an OutputDevice with the pin number given
-    /// # Arguments
+    
     ///
     /// * `pin` - The GPIO pin which the device is attached to
     ///  
@@ -250,7 +250,6 @@ impl DigitalOutputDeviceR {
 
     /// Make the device turn on and off repeatedly in the background.
     /// Use `set_blink_count` to set the number of times to blink the device
-    /// # Arguments
     /// * `on_time` - Number of seconds on
     /// * `off_time` - Number of seconds off
     ///
@@ -261,7 +260,6 @@ impl DigitalOutputDeviceR {
         }
     }
     /// Set the number of times to blink the device
-    /// # Arguments
     /// * `n` - Number of times to blink
     pub fn set_blink_count(&mut self, n: i32) {
         self.blink_count = Some(n)
@@ -305,8 +303,7 @@ impl LEDR {
     }
 
     /// Make the device turn on and off repeatedly in the background.
-    /// Use `set_blink_count` to set the number of times to blink the device
-    /// # Arguments
+    /// Use `set_blink_count` to set the number of times to blink the device    
     /// * `on_time` - Number of seconds on
     /// * `off_time` - Number of seconds off
     ///
@@ -316,8 +313,7 @@ impl LEDR {
             Some(n) => self.blinker(on_time, off_time, Some(n)),
         }
     }
-    /// Set the number of times to blink the device
-    /// # Arguments
+    /// Set the number of times to blink the device    
     /// * `n` - Number of times to blink
     pub fn set_blink_count(&mut self, n: i32) {
         self.blink_count = Some(n)
@@ -350,8 +346,7 @@ impl BuzzerR {
     impl_digital_output_device!();
 
     /// Make the device turn on and off repeatedly in the background.
-    /// Use `set_beep_count` to set the number of times to beep the device
-    /// # Arguments
+    /// Use `set_beep_count` to set the number of times to beep the device    
     /// * `on_time` - Number of seconds on
     /// * `off_time` - Number of seconds off
     ///
@@ -361,8 +356,7 @@ impl BuzzerR {
             Some(n) => self.blinker(on_time, off_time, Some(n)),
         }
     }
-    /// Set the number of times to beep the device
-    /// # Arguments
+    /// Set the number of times to beep the device    
     /// * `n` - Number of times to beep
     pub fn set_beep_count(&mut self, n: i32) {
         self.blink_count = Some(n)
@@ -386,8 +380,7 @@ macro_rules! impl_pwm_device {
     /// Set the duty cycle of the PWM device. 0.0 is off, 1.0 is fully on.
     /// Values in between may be specified for varying levels of power in the device.
     pub fn set_value(&mut self, duty:f64){
-        self.stop();
-        self.device.lock().unwrap().pin.set_pwm_frequency(100.0, duty).unwrap();
+        self.write_state(duty)
 
     }
 
@@ -508,6 +501,10 @@ macro_rules! impl_pwm_device {
 }
 
 impl PWMOutputDeviceR{
+    /// Returns a PWMOutputDevice with the pin number given
+    ///
+    /// * `pin` - The GPIO pin which the device is attached to
+    ///  
     pub fn new(pin:u8) -> PWMOutputDeviceR{
             PWMOutputDeviceR{
                     device: Arc::new(Mutex::new(OutputDeviceR::new(pin))),
@@ -542,8 +539,7 @@ impl PWMOutputDeviceR{
         }
     }
 
-    /// Make the device fade in and out repeatedly.
-    /// # Arguments
+    /// Make the device fade in and out repeatedly.    
     /// * `fade_in_time` - Number of seconds to spend fading in
     /// * `fade_out_time` - Number of seconds to spend fading out
     ///
@@ -559,4 +555,113 @@ impl PWMOutputDeviceR{
         self.blink(0.0, 0.0, fade_in_time, fade_out_time)
     }
 
+}
+
+/// Represents a light emitting diode (LED) with variable brightness.
+/// A typical configuration of such a device is to connect a GPIO pin
+/// to the anode (long leg) of the LED, and the cathode (short leg) to ground,
+/// with an optional resistor to prevent the LED from burning out.
+pub struct PWMLEDR(PWMOutputDeviceR);
+
+impl PWMLEDR {
+    /// Returns a PMWLED with the pin number given
+    ///
+    /// * `pin` - The GPIO pin which the device is attached to
+    ///    
+    pub fn new(pin: u8) -> PWMLEDR {
+        PWMLEDR(PWMOutputDeviceR::new(pin))
+    }
+
+    /// Make the device turn on and off repeatedly
+    /// * `on_time` - Number of seconds on
+    /// * `off_time` - Number of seconds off
+    /// * `fade_in_time` - Number of seconds to spend fading in
+    /// * `fade_out_time` - Number of seconds to spend fading out
+    ///
+    pub fn blink(
+        &mut self, on_time: f32, off_time: f32, fade_in_time: f32, fade_out_time: f32
+    ) {
+        self.0
+            .blink(on_time, off_time, fade_in_time, fade_out_time)
+    }
+
+    /// Turns the device on.
+    pub fn on(&mut self) {
+        self.0.on();
+    }
+
+    /// Turns the device off.
+    pub fn off(&mut self) {
+        self.0.off();
+    }
+
+    /// Make the device fade in and out repeatedly.
+    /// * `fade_in_time` - Number of seconds to spend fading in
+    /// * `fade_out_time` - Number of seconds to spend fading out
+    ///
+    pub fn pulse(&mut self, fade_in_time: f32, fade_out_time: f32) {
+        self.0.pulse(fade_in_time, fade_out_time);
+    }
+
+    /// Set the duty cycle of the PWM device. 0.0 is off, 1.0 is fully on.
+    /// Values in between may be specified for varying levels of power in the device.
+    pub fn set_value(&mut self, value: f64) {
+        self.0.set_value(value);
+    }
+
+}
+
+struct MotorCompositeDevice (PWMOutputDeviceR,PWMOutputDeviceR);
+
+///  Represents a generic motor connected
+///  to a bi-directional motor driver circuit (i.e. an H-bridge).
+///  Attach an H-bridge motor controller to your Pi; connect a power source (e.g. a battery pack or the 5V pin)
+///  to the controller; connect the outputs of the controller board to the two terminals of the motor; connect the inputs of the controller board to two GPIO pins.
+pub struct MotorR {
+    devices: MotorCompositeDevice,
+    speed: f64
+}
+
+impl MotorR{
+    /// creates a new Motor instance
+    /// * `forward_pin` - The GPIO pin that the forward input of the motor driver chip is connected to
+    /// * `backward` - The GPIO pin that the backward input of the motor driver chip is connected to
+    pub fn new(forward_pin: u8, backward_pin: u8) -> MotorR {
+        let forward = PWMOutputDeviceR::new(forward_pin);
+        let backward = PWMOutputDeviceR::new(backward_pin);
+        MotorR{
+            devices: MotorCompositeDevice(forward,backward),
+            speed: 1.0
+        }
+    }
+
+    /// Drive the motor forwards at the current speed.
+    /// You can change the speed using `set_speed` before calling `forward`
+    pub fn forward(&mut self) {
+        self.devices.1.off();
+        self.devices.0.set_value(self.speed);
+    }
+
+    /// Drive the motor backwards.
+    /// You can change the speed using `set_speed` before calling `backward`
+    pub fn backward(&mut self) {
+        self.devices.0.off();
+        self.devices.1.set_value(self.speed);
+    }
+
+    /// Stop the motor.
+    pub fn stop(&mut self) {
+        self.devices.0.off();
+        self.devices.1.off();
+    }
+
+    /// The speed at which the motor should turn. 
+    /// Can be any value between 0.0 (stopped) and the default 1.0 (maximum speed) 
+    pub fn set_speed(&mut self, speed:f64){
+        if !(speed >= 0.0 && speed<=1.0) {
+            println!("Speed must be between 0.0 and 1.0");
+            return;
+        }
+        self.speed = speed
+    }
 }
