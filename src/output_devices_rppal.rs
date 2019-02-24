@@ -426,7 +426,7 @@ macro_rules! impl_pwm_device {
                             // device.lock().unwrap().off();
                             break;
                         }
-                        device.lock().unwrap().pin.set_pwm_frequency(100.0, *value as f64).unwrap();
+                        device.lock().unwrap().pin.set_pwm_frequency(100.0, f64::from(*value)).unwrap();
                         thread::sleep(Duration::from_millis((delay * 1000 as f32) as u64));
 
                     }
@@ -438,7 +438,7 @@ macro_rules! impl_pwm_device {
                         // device.lock().unwrap().off();
                         break;
                     }
-                    device.lock().unwrap().pin.set_pwm_frequency(100.0, *value as f64).unwrap();
+                    device.lock().unwrap().pin.set_pwm_frequency(100.0, f64::from(*value)).unwrap();
                     thread::sleep(Duration::from_millis((delay * 1000 as f32) as u64));
 
                 }
@@ -450,7 +450,9 @@ macro_rules! impl_pwm_device {
 
         fn stop(&mut self) {
             self.blinking.clone().store(false, Ordering::SeqCst);
-             self.device.lock().unwrap().pin.clear_pwm();
+             if self.device.lock().unwrap().pin.clear_pwm().is_err(){
+                 println!("Could not clear pwm for pin");
+             };
         }
 
         fn write_state(&mut self, value:f64){
@@ -693,18 +695,19 @@ impl Servo{
 
     /// Set the servo to its minimum position.
     pub fn min(&mut self){
-if let Err(_) = self.pin.set_pwm(Duration::from_millis(self.frame_width), Duration::from_micros(self.min_pulse_width)) { println!("Failed to set servo to minimum position") }
+if self.pin.set_pwm(Duration::from_millis(self.frame_width), Duration::from_micros(self.min_pulse_width)).is_err() { println!("Failed to set servo to minimum position") }
     }
 
     /// Set the servo to its maximum position.
     pub fn max(&mut self){
-        if let Err(_) = self.pin.set_pwm(Duration::from_millis(self.frame_width), Duration::from_micros(self.max_pulse_width)) { println!("Failed to set servo to maximum position") }
+        if self.pin.set_pwm(Duration::from_millis(self.frame_width), Duration::from_micros(self.max_pulse_width)).is_err() { println!("Failed to set servo to maximum position") }
     }
 
     /// Set the servo to its neutral position.
     pub fn mid(&mut self){
         let mid_value = (self.min_pulse_width + self.max_pulse_width) / 2 ;
-        if let Err(_) = self.pin.set_pwm(Duration::from_millis(self.frame_width), Duration::from_micros(mid_value)) { println!("Failed to set servo to neutral position") }
+        if self.pin.set_pwm(Duration::from_millis(self.frame_width), Duration::from_micros(mid_value)).is_err() { println!("Failed to set servo to neutral position") 
+        }
     }
 
     /// Set the servo's minimum pulse width
