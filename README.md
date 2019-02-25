@@ -7,8 +7,6 @@ A simple interface to GPIO devices with Raspberry Pi.
 This library is based on [GPIOZero](https://gpiozero.readthedocs.io/en/stable/index.html)
 library.
 
-_Note: This is a work in progress. The library will eventually support `embedded-hal` based drivers_
-
 
 The idea is to get started with physical computing using Rust with little coding
 by hiding the underlying complexity.

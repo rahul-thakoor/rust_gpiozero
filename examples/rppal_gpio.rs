@@ -24,7 +24,7 @@ fn main() {
     // led.wait();
 
     // let mut input = DigitalInputDeviceR::new_with_pullup(2);
-    let mut led = PWMOutputDeviceR::new(23);
+    let mut led = PWMOutputDevice::new(23);
     led.blink(2.0, 2.0, 1.0, 1.0);
 
     let _ = io::stdin().read(&mut [0u8]).unwrap();
