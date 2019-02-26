@@ -1,5 +1,5 @@
 //! Input device component interfaces for devices such as `Button`
-use rppal::gpio::{Gpio, InputPin, Level, Mode, Trigger};
+use rppal::gpio::{Gpio, InputPin, Level, Trigger};
 use std::time::Duration;
 
 /// Represents a generic GPIO input device.

@@ -34,8 +34,6 @@
 //! ```
 //!
 
-
-
 pub use self::devices::*;
 pub use self::input_devices::*;
 pub use self::output_devices::*;
@@ -46,5 +44,3 @@ pub mod devices;
 pub mod output_devices;
 #[macro_use]
 pub mod input_devices;
-
-

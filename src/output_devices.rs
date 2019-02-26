@@ -1,6 +1,6 @@
 //! Output device component interfaces for devices such as `LED`, `PWMLED`, etc
 use rppal::gpio::{Gpio, IoPin, Level, Mode};
-use std::sync::atomic::{AtomicBool, AtomicIsize, Ordering};
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use std::sync::Mutex;
 use std::thread;
@@ -382,7 +382,7 @@ macro_rules! impl_pwm_device {
         self.write_state(duty)
 
     }
-    /// Set the number of times to blink the device    
+    /// Set the number of times to blink the device
     /// * `n` - Number of times to blink
     pub fn set_blink_count(&mut self, n: i32) {
         self.blink_count = Some(n)
