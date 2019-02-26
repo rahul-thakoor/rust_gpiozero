@@ -382,6 +382,11 @@ macro_rules! impl_pwm_device {
         self.write_state(duty)
 
     }
+    /// Set the number of times to blink the device    
+    /// * `n` - Number of times to blink
+    pub fn set_blink_count(&mut self, n: i32) {
+        self.blink_count = Some(n)
+    }
 
     fn blinker(&mut self,
         on_time: f32,
@@ -525,13 +530,6 @@ impl PWMOutputDevice {
     /// * `fade_in_time` - Number of seconds to spend fading in
     /// * `fade_out_time` - Number of seconds to spend fading out
     ///
-    /// # Example
-    ///
-    /// ```
-    /// use rust_gpiozero::*;
-    /// let mut led = PWMOutputDevice::new(17);
-    /// led.blink(2.0, 2.0, 1.0, 1.0)
-    /// ```    
     pub fn blink(&mut self, on_time: f32, off_time: f32, fade_in_time: f32, fade_out_time: f32) {
         match self.blink_count {
             None => self.blinker(on_time, off_time, fade_in_time, fade_out_time, None),
@@ -543,14 +541,6 @@ impl PWMOutputDevice {
     /// * `fade_in_time` - Number of seconds to spend fading in
     /// * `fade_out_time` - Number of seconds to spend fading out
     ///
-    /// # Example
-    ///
-    /// ```
-    /// use rust_gpiozero::*;
-    /// let mut led = PWMOutputDevice::new(17);
-    /// // Run forever
-    /// led.pulse(2.0, 2.0)
-    /// ```    
     pub fn pulse(&mut self, fade_in_time: f32, fade_out_time: f32) {
         self.blink(0.0, 0.0, fade_in_time, fade_out_time)
     }
@@ -603,6 +593,12 @@ impl PWMLED {
     /// Values in between may be specified for varying levels of power in the device.
     pub fn set_value(&mut self, value: f64) {
         self.0.set_value(value);
+    }
+
+    /// Set the number of times to blink the device    
+    /// * `n` - Number of times to blink
+    pub fn set_blink_count(&mut self, n: i32) {
+        self.0.blink_count = Some(n)
     }
 }
 

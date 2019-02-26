@@ -84,7 +84,7 @@ To use `rust_gpiozero`, first add this to your Cargo.toml:
 
 ```toml
 [dependencies]
- rust_gpiozero = "0.1.0"
+ rust_gpiozero = "0.2.0"
 ```
 Compiling your project on a Raspberry Pi directly can take significant time depending on the model. Ideally, you would cross compile your project then run it on the Raspberry Pi. 
 
@@ -94,7 +94,7 @@ Compiling your project on a Raspberry Pi directly can take significant time depe
 
 The following features are planned :
 
-- [ ] Support for `linux-embedded-hal`
+- [ ] Support for `embedded-hal`
 - [ ] Support for common devices such as Accelerometer, Temperature sensors, etc
 
 
@@ -102,6 +102,9 @@ The following features are planned :
 ## License
 
 [GNU General Public License v3.0](https://github.com/rahul-thakoor/rust_gpiozero/blob/master/LICENSE.md)
+
+## Credits
+This library would not be possible without the great work of the maintainers of [GPIOZero](https://gpiozero.readthedocs.io/en/stable/index.html) and [rppal](https://github.com/golemparts/rppal)
 
 ## Contributing
 Thanks for your interest in `rust_gpiozero`. I am a newbie rustacean and just started using the language! I am using this project to learn more about Rust. Feel free to give feedback or send PRs. Your experiences and feedback will also benefit others who use this library.

@@ -16,9 +16,7 @@
 //!
 //! # Example : Blinking an LED
 //!
-//! ```no_run
-//!
-//! extern crate rust_gpiozero;
+//! ```
 //! use rust_gpiozero::*;
 //!
 //! fn main() {
@@ -30,27 +28,12 @@
 //! // blink the LED
 //! // on_time: 2 seconds and off_time: 3 seconds
 //!
-//! led.blink(2,3);
+//! led.blink(2.0,3.0);
 //!
 //! }
 //! ```
 //!
-//!
-//!  # Example : Wait for a Button Press
-//!
-//! ```no_run
-//!
-//! extern crate rust_gpiozero;
-//! use rust_gpiozero::*;
-//!
-//! fn main() {
-//! let button = Button::new(17);
-//! button.wait_for_press();
-//! println!("button pressed");
-//!
-//! }
-//!
-//! ```
+
 
 
 pub use self::devices::*;
