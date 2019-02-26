@@ -1,13 +1,23 @@
 branches:
   only:
-  - master
-  
+    - master
+
 language: rust
 sudo: required
 cache: cargo
+services: docker
 rust:
   - stable
   - nightly
+install:
+  - cargo install cross || true
+  - source ~/.cargo/env || true
+script:
+  - cross build --target $TARGET
+  - cross build --target $TARGET --release
+env:
+  - TARGET=armv7-unknown-linux-gnueabihf
+  - TARGET=aarch64-unknown-linux-gnu
 matrix:
   allow_failures:
     - rust: nightly
