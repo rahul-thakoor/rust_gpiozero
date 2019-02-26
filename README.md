@@ -17,20 +17,13 @@ The library uses [BCM Pin numbering](https://pinout.xyz/)
 
 ```rust
 
-extern crate rust_gpiozero;
 use rust_gpiozero::*;
 
 fn main() {
-
-// Create a new LED attached to Pin 17
-
-let mut led = LED::new(17);
-
-// blink the LED
-// on_time: 2 seconds and off_time: 3 seconds
-
-led.blink(2,3);
-
+    // Create a new LED attached to Pin 17
+    let mut led = LED::new(17);
+    // blink the LED
+    led.blink(2.0, 3.0);
 }
 
 ```
@@ -38,16 +31,14 @@ led.blink(2,3);
 
 ### Example : Wait for a Button Press
 ```rust
-extern crate rust_gpiozero;
-use rust_gpiozero::*;
 
+use rust_gpiozero::*;
 
 fn main() {
     // Create a button which is attached to Pin 17
-    let button = Button::new(17);
-    button.wait_for_press();
+    let mut button = Button::new(17);
+    button.wait_for_press(None);
     println!("button pressed");
-
 }
 
 ```
