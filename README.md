@@ -88,7 +88,9 @@ The following features are planned :
 - [ ] Support for `embedded-hal`
 - [ ] Support for common devices such as Accelerometer, Temperature sensors, etc
 
+## Changelog
 
+[CHANGELOG.md](https://github.com/rahul-thakoor/rust_gpiozero/blob/master/CHANGELOG.md)
 
 ## License
 
