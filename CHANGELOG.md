@@ -55,7 +55,7 @@
     + `pin` is now `u8`
     + Added `active_high`: When True, the value property is True when the device's pin is high. When False the value property is True when the device's pin is low (i.e. the value is inverted).
     + Added `set_active_high` to set the state for `active_high`
-    + Added `blink` to make the device turn on and off repeatedly in the background. 
+    + `blink` now takes `f32` for `on_time` and `off_time`. 
     + Added `set_blink_count`to set the number of times to blink the device
     + Added `wait` which blocks until background blinking process is done
     + Added `is_lit` which returns True if the device is currently active and False otherwise.
