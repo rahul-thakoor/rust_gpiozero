@@ -12,12 +12,10 @@ exclude = [".idea/*", "doc/**/*.html"]
 edition = "2018"
 
 [features]
-nightly = ["linux-embedded-hal"]
+
 
 [dependencies]
-sysfs_gpio = "0.5.3"
-linux-embedded-hal = {version="0.1.1",optional=true}
-wiringpi = "0.2.4"
+rppal = "0.11.1"
 
 [badges]
 travis-ci = { repository = "rahul-thakoor/rust_gpiozero", branch = "master" }
