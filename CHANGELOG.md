@@ -70,7 +70,7 @@
     + Removed `blink` method
     
   - **Motor** changes:
-    + `formward_pin` and `backward_pin`are now `u8`
+    + `forward_pin` and `backward_pin`are now `u8`
     + Added `set_speed` method:  Use `set_speed` to change the speed at which motors should turn. Can be any value between 0.0 and the default 1.0 (maximum speed)
 
 * **device**
