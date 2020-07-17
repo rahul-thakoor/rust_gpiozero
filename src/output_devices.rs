@@ -679,8 +679,8 @@ impl Servo {
                 Err(e) => panic!("{:?}", e),
                 Ok(pin) => Servo {
                     pin: pin.into_io(Mode::Output),
-                    min_pulse_width: 1000,
-                    max_pulse_width: 2000,
+                    min_pulse_width: 1,
+                    max_pulse_width: 2,
                     frame_width: 20,
                 },
             },
