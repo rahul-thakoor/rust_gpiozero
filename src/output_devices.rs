@@ -741,7 +741,7 @@ impl Servo {
     }
     /// Set the servo's maximum pulse width
     pub fn set_max_pulse_width(&mut self, value: u64) {
-        if value >= self.frame_width {
+        if value >= self.frame_width * 1000 {
             println!("max_pulse_width must be less than frame_width");
             return;
         } else {
