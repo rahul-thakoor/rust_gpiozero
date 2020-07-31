@@ -17,6 +17,7 @@ pub struct OutputDevice {
 #[macro_export]
 macro_rules! impl_io_device {
     () => {
+        #[allow(dead_code)]
         fn value_to_state(&self, value: bool) -> bool {
             if value {
                 self.active_state
@@ -737,32 +738,35 @@ impl Servo {
     pub fn set_min_pulse_width(&mut self, value: u64) {
         if value >= self.max_pulse_width {
             println!("min_pulse_width must be less than max_pulse_width");
-            return;
         } else {
-            self.min_pulse_width = value
+            self.min_pulse_width = value;
         }
     }
+
     /// Set the servo's maximum pulse width
     pub fn set_max_pulse_width(&mut self, value: u64) {
         if value >= self.frame_width {
             println!("max_pulse_width must be less than frame_width");
-            return;
         } else {
-            self.max_pulse_width = value
+            self.max_pulse_width = value;
         }
     }
+
     /// Set the servo's frame width(The time between control pulses, measured in milliseconds.)
     pub fn set_frame_width(&mut self, value: u64) {
         self.frame_width = value;
     }
+
     /// Get the servo's minimum pulse width
     pub fn get_min_pulse_width(&mut self) -> u64 {
         self.min_pulse_width
     }
+
     /// Get the servo's maximum pulse width
     pub fn get_max_pulse_width(&mut self) -> u64 {
         self.max_pulse_width
     }
+
     /// Get the servo's frame width(The time between control pulses, measured in milliseconds.)
     pub fn get_frame_width(&mut self) -> u64 {
         self.frame_width

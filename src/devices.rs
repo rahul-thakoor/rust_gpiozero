@@ -11,6 +11,7 @@ pub trait Device {
     /// Returns ``True`` if the device is currently active and ``False`` otherwise.
     fn is_active(&self) -> bool;
 }
+
 #[macro_export]
 macro_rules! impl_device {
     () => {
@@ -47,7 +48,6 @@ impl GpioDevice {
     /// # Arguments
     ///
     /// * `pin` - The GPIO pin which the device is attached to
-    ///
     pub fn new(pin: u8) -> GpioDevice {
         match Gpio::new() {
             Err(e) => panic!("{:?}", e),

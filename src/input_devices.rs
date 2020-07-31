@@ -171,6 +171,8 @@ pub struct Button {
     pin: InputPin,
     active_state: bool,
     inactive_state: bool,
+    // FIXME: Implement debouncing
+    #[allow(dead_code)]
     bounce_time: Option<f32>,
 }
 
