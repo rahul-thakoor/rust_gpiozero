@@ -14,15 +14,15 @@ pub trait Device {
 #[macro_export]
 macro_rules! impl_device {
     () => {
-    /// Returns ``True`` if the device is currently active and ``False`` otherwise.
-    pub fn is_active(&self) -> bool {
-        self.value()
-    }
-    /// Shut down the device and release all associated resources.
-    pub fn close(self) {
-        drop(self)
-    }
-    }
+        /// Returns ``True`` if the device is currently active and ``False`` otherwise.
+        pub fn is_active(&self) -> bool {
+            self.value()
+        }
+        /// Shut down the device and release all associated resources.
+        pub fn close(self) {
+            drop(self)
+        }
+    };
 }
 
 /// Represents a generic GPIO device and provides the services common to all single-pin GPIO devices
@@ -35,12 +35,11 @@ pub struct GpioDevice {
 
 macro_rules! impl_gpio_device {
     () => {
-    /// The `Pin` that the device is connected to.
-    pub fn pin(&self) -> u8 {
-        self.pin.pin()
-    }
-
-    }
+        /// The `Pin` that the device is connected to.
+        pub fn pin(&self) -> u8 {
+            self.pin.pin()
+        }
+    };
 }
 
 impl GpioDevice {

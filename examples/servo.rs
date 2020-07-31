@@ -8,7 +8,7 @@ fn main() {
     // Create a new Servo attached to Pin 23
     let mut servo = Servo::new(23);
 
-    loop{
+    loop {
         servo.max();
         thread::sleep(Duration::from_millis(2000));
         servo.min();
