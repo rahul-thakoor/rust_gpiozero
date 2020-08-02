@@ -60,29 +60,33 @@ impl InputDevice {
 macro_rules! impl_events_mixin {
     () => {
         /// Pause the program until the device is activated, or the timeout is reached.
-        fn wait_for(&mut self, timeout:Option<f32>, active: bool){
-            match timeout{
-                None =>
+        fn wait_for(&mut self, timeout: Option<f32>, active: bool) {
+            match timeout {
+                None => {
                     if active {
                         self.pin.set_interrupt(Trigger::RisingEdge).unwrap();
                         self.pin.poll_interrupt(true, None).unwrap();
-                    }else{
+                    } else {
                         self.pin.set_interrupt(Trigger::FallingEdge).unwrap();
                         self.pin.poll_interrupt(true, None).unwrap();
                     }
-                ,
-                Some(n) => if active {
+                }
+                Some(n) => {
+                    if active {
                         self.pin.set_interrupt(Trigger::RisingEdge).unwrap();
-                        self.pin.poll_interrupt(true, Some(Duration::from_millis((n * 1000.0) as u64))).unwrap();
-                    }else{
+                        self.pin
+                            .poll_interrupt(true, Some(Duration::from_millis((n * 1000.0) as u64)))
+                            .unwrap();
+                    } else {
                         self.pin.set_interrupt(Trigger::FallingEdge).unwrap();
-                        self.pin.poll_interrupt(true, Some(Duration::from_millis((n * 1000.0) as u64))).unwrap();
+                        self.pin
+                            .poll_interrupt(true, Some(Duration::from_millis((n * 1000.0) as u64)))
+                            .unwrap();
                     }
+                }
             }
         }
-
-
-    }
+    };
 }
 
 /// Represents a generic input device with typical on/off behaviour.
@@ -167,6 +171,8 @@ pub struct Button {
     pin: InputPin,
     active_state: bool,
     inactive_state: bool,
+    // FIXME: Implement debouncing
+    #[allow(dead_code)]
     bounce_time: Option<f32>,
 }
 

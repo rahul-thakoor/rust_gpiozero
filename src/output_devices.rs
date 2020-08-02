@@ -17,6 +17,7 @@ pub struct OutputDevice {
 #[macro_export]
 macro_rules! impl_io_device {
     () => {
+        #[allow(dead_code)]
         fn value_to_state(&self, value: bool) -> bool {
             if value {
                 self.active_state
@@ -32,65 +33,60 @@ macro_rules! impl_io_device {
         /// Returns ``True`` if the device is currently active and ``False`` otherwise.
         pub fn value(&self) -> bool {
             match self.pin.read() {
-            Level::Low => self.state_to_value(false),
-            Level::High => self.state_to_value(true),
+                Level::Low => self.state_to_value(false),
+                Level::High => self.state_to_value(true),
             }
         }
-
-
-
-
-    }
+    };
 }
 
 macro_rules! impl_output_device {
     () => {
-    /// Set the state for active_high
-    pub fn set_active_high(&mut self, value: bool) {
-        if value {
-            self.active_state=true;
-            self.inactive_state=false;
-        } else {
-            self.active_state=false;
-            self.inactive_state=true;
+        /// Set the state for active_high
+        pub fn set_active_high(&mut self, value: bool) {
+            if value {
+                self.active_state = true;
+                self.inactive_state = false;
+            } else {
+                self.active_state = false;
+                self.inactive_state = true;
+            }
         }
-    }
-    /// When ``True``, the `value` property is ``True`` when the device's
-    /// `pin` is high. When ``False`` the `value` property is
-    /// ``True`` when the device's pin is low (i.e. the value is inverted).
-    /// Be warned that changing it will invert `value` (i.e. changing this property doesn't change
-    /// the device's pin state - it just changes how that state is interpreted).
-    pub fn active_high(&self) -> bool {
-        self.active_state
-    }
-
-    /// Turns the device on.
-    pub fn on(&mut self) {
-        self.write_state(true)
-    }
-
-    /// Turns the device off.
-    pub fn off(&mut self) {
-        self.write_state(false)
-    }
-    /// Reverse the state of the device. If it's on, turn it off; if it's off, turn it on.
-    pub fn toggle(&mut self) {
-        if self.is_active(){
-            self.off()
-        }else{
-            self.on()
+        /// When ``True``, the `value` property is ``True`` when the device's
+        /// `pin` is high. When ``False`` the `value` property is
+        /// ``True`` when the device's pin is low (i.e. the value is inverted).
+        /// Be warned that changing it will invert `value` (i.e. changing this property doesn't change
+        /// the device's pin state - it just changes how that state is interpreted).
+        pub fn active_high(&self) -> bool {
+            self.active_state
         }
-    }
+
+        /// Turns the device on.
+        pub fn on(&mut self) {
+            self.write_state(true)
+        }
+
+        /// Turns the device off.
+        pub fn off(&mut self) {
+            self.write_state(false)
+        }
+        /// Reverse the state of the device. If it's on, turn it off; if it's off, turn it on.
+        pub fn toggle(&mut self) {
+            if self.is_active() {
+                self.off()
+            } else {
+                self.on()
+            }
+        }
         fn write_state(&mut self, value: bool) {
-        if self.value_to_state(value) {
-            self.pin.set_high()
-        } else {
-            self.pin.set_low()
+            if self.value_to_state(value) {
+                self.pin.set_high()
+            } else {
+                self.pin.set_low()
+            }
         }
-    }
-
-        }
-    }
+    };
+}
 
 impl OutputDevice {
     /// Returns an OutputDevice with the pin number given
@@ -131,22 +127,17 @@ pub struct DigitalOutputDevice {
 
 macro_rules! impl_digital_output_device {
     () => {
-
-        fn blinker(&mut self,
-                on_time: f32,
-                off_time: f32,
-                n: Option<i32>){
+        fn blinker(&mut self, on_time: f32, off_time: f32, n: Option<i32>) {
             self.stop();
 
             let device = Arc::clone(&self.device);
             let blinking = Arc::clone(&self.blinking);
 
-
             self.handle = Some(thread::spawn(move || {
                 blinking.store(true, Ordering::SeqCst);
                 match n {
-                Some(end) => {
-                    for _ in 0..end {
+                    Some(end) => {
+                        for _ in 0..end {
                             if !blinking.load(Ordering::SeqCst) {
                                 device.lock().unwrap().off();
                                 break;
@@ -155,33 +146,32 @@ macro_rules! impl_digital_output_device {
                             thread::sleep(Duration::from_millis((on_time * 1000.0) as u64));
                             device.lock().unwrap().off();
                             thread::sleep(Duration::from_millis((off_time * 1000.0) as u64));
+                        }
                     }
-                }
-                None => loop {
-                    if !blinking.load(Ordering::SeqCst) {
+                    None => loop {
+                        if !blinking.load(Ordering::SeqCst) {
+                            device.lock().unwrap().off();
+                            break;
+                        }
+                        device.lock().unwrap().on();
+                        thread::sleep(Duration::from_millis((on_time * 1000.0) as u64));
                         device.lock().unwrap().off();
-                        break;
-                    }
-                    device.lock().unwrap().on();
-                    thread::sleep(Duration::from_millis((on_time * 1000.0) as u64));
-                    device.lock().unwrap().off();
-                    thread::sleep(Duration::from_millis((off_time * 1000.0) as u64));
-                },
-            }
+                        thread::sleep(Duration::from_millis((off_time * 1000.0) as u64));
+                    },
+                }
             }));
-
         }
         /// Returns ``True`` if the device is currently active and ``False`` otherwise.
-        pub fn is_active(&self) -> bool{
+        pub fn is_active(&self) -> bool {
             Arc::clone(&self.device).lock().unwrap().is_active()
         }
         /// Turns the device on.
-        pub fn on(&self){
+        pub fn on(&self) {
             self.stop();
             self.device.lock().unwrap().on()
         }
         /// Turns the device off.
-        pub fn off(&self){
+        pub fn off(&self) {
             self.stop();
             self.device.lock().unwrap().off()
         }
@@ -197,8 +187,8 @@ macro_rules! impl_digital_output_device {
         }
 
         fn stop(&self) {
-        self.blinking.clone().store(false, Ordering::SeqCst);
-        self.device.lock().unwrap().pin.set_low();
+            self.blinking.clone().store(false, Ordering::SeqCst);
+            self.device.lock().unwrap().pin.set_low();
         }
 
         /// When ``True``, the `value` property is ``True`` when the device's
@@ -217,7 +207,7 @@ macro_rules! impl_digital_output_device {
 
         /// The `Pin` that the device is connected to.
         pub fn pin(&self) -> u8 {
-           self.device.lock().unwrap().pin.pin()
+            self.device.lock().unwrap().pin.pin()
         }
 
         /// Shut down the device and release all associated resources.
@@ -226,14 +216,14 @@ macro_rules! impl_digital_output_device {
         }
 
         /// Block until background process is done
-        pub fn wait(&mut self){
+        pub fn wait(&mut self) {
             self.handle
-                .take().expect("Called stop on non-running thread")
-                .join().expect("Could not join spawned thread");
+                .take()
+                .expect("Called stop on non-running thread")
+                .join()
+                .expect("Could not join spawned thread");
         }
-
-
-    }
+    };
 }
 
 impl DigitalOutputDevice {
@@ -376,113 +366,127 @@ pub struct PWMOutputDevice {
 
 macro_rules! impl_pwm_device {
     () => {
-    /// Set the duty cycle of the PWM device. 0.0 is off, 1.0 is fully on.
-    /// Values in between may be specified for varying levels of power in the device.
-    pub fn set_value(&mut self, duty:f64){
-        self.write_state(duty)
-
-    }
-    /// Set the number of times to blink the device
-    /// * `n` - Number of times to blink
-    pub fn set_blink_count(&mut self, n: i32) {
-        self.blink_count = Some(n)
-    }
-
-    fn blinker(&mut self,
-        on_time: f32,
-        off_time: f32,
-        fade_in_time: f32,
-        fade_out_time: f32,
-        n: Option<i32>
-        ){
-        let mut sequence: Vec<(f32, f32)> = Vec::new();
-        let fps = 25.0;
-        // create sequence for fading in
-        if fade_in_time > 0.0{
-        for i in 0..fps as i32 * fade_in_time as i32 {
-            sequence.push((i as f32 * (1.0 / fps) / fade_in_time, 1.0 / fps))
+        /// Set the duty cycle of the PWM device. 0.0 is off, 1.0 is fully on.
+        /// Values in between may be specified for varying levels of power in the device.
+        pub fn set_value(&mut self, duty: f64) {
+            self.write_state(duty)
         }
+        /// Set the number of times to blink the device
+        /// * `n` - Number of times to blink
+        pub fn set_blink_count(&mut self, n: i32) {
+            self.blink_count = Some(n)
         }
 
-        // allow to stay on for on_time
-        sequence.push((1.0, on_time));
+        fn blinker(
+            &mut self,
+            on_time: f32,
+            off_time: f32,
+            fade_in_time: f32,
+            fade_out_time: f32,
+            n: Option<i32>,
+        ) {
+            let mut sequence: Vec<(f32, f32)> = Vec::new();
+            let fps = 25.0;
+            // create sequence for fading in
+            if fade_in_time > 0.0 {
+                for i in 0..fps as i32 * fade_in_time as i32 {
+                    sequence.push((i as f32 * (1.0 / fps) / fade_in_time, 1.0 / fps))
+                }
+            }
 
-        // create sequence for fading out
-        if fade_out_time > 0.0 {
-        for i in 0..fps as i32 * fade_out_time as i32 {
-            sequence.push((1.0 - (i as f32 * (1.0 / fps) / fade_out_time), 1.0 / fps))
-        }
-        }
+            // allow to stay on for on_time
+            sequence.push((1.0, on_time));
 
-        // allow to stay off for off_time
-        sequence.push((0.0, off_time));
+            // create sequence for fading out
+            if fade_out_time > 0.0 {
+                for i in 0..fps as i32 * fade_out_time as i32 {
+                    sequence.push((1.0 - (i as f32 * (1.0 / fps) / fade_out_time), 1.0 / fps))
+                }
+            }
 
+            // allow to stay off for off_time
+            sequence.push((0.0, off_time));
 
-        let device = Arc::clone(&self.device);
-        let blinking = Arc::clone(&self.blinking);
+            let device = Arc::clone(&self.device);
+            let blinking = Arc::clone(&self.blinking);
 
-        self.handle = Some(thread::spawn(move || {
-            blinking.store(true, Ordering::SeqCst);
-            match n {
-            Some(end) => {
-                for _ in 0..end {
-                    for (value, delay) in &sequence {
-                        if !blinking.load(Ordering::SeqCst) {
-                            // device.lock().unwrap().off();
-                            break;
+            self.handle = Some(thread::spawn(move || {
+                blinking.store(true, Ordering::SeqCst);
+                match n {
+                    Some(end) => {
+                        for _ in 0..end {
+                            for (value, delay) in &sequence {
+                                if !blinking.load(Ordering::SeqCst) {
+                                    // device.lock().unwrap().off();
+                                    break;
+                                }
+                                device
+                                    .lock()
+                                    .unwrap()
+                                    .pin
+                                    .set_pwm_frequency(100.0, f64::from(*value))
+                                    .unwrap();
+                                thread::sleep(Duration::from_millis((delay * 1000 as f32) as u64));
+                            }
                         }
-                        device.lock().unwrap().pin.set_pwm_frequency(100.0, f64::from(*value)).unwrap();
-                        thread::sleep(Duration::from_millis((delay * 1000 as f32) as u64));
-
                     }
+                    None => loop {
+                        for (value, delay) in &sequence {
+                            if !blinking.load(Ordering::SeqCst) {
+                                // device.lock().unwrap().off();
+                                break;
+                            }
+                            device
+                                .lock()
+                                .unwrap()
+                                .pin
+                                .set_pwm_frequency(100.0, f64::from(*value))
+                                .unwrap();
+                            thread::sleep(Duration::from_millis((delay * 1000 as f32) as u64));
+                        }
+                    },
                 }
-            }
-            None => loop {
-                for (value, delay) in &sequence {
-                    if !blinking.load(Ordering::SeqCst) {
-                        // device.lock().unwrap().off();
-                        break;
-                    }
-                    device.lock().unwrap().pin.set_pwm_frequency(100.0, f64::from(*value)).unwrap();
-                    thread::sleep(Duration::from_millis((delay * 1000 as f32) as u64));
-
-                }
-            },
-            }
-        }));
-
+            }));
         }
 
         fn stop(&mut self) {
             self.blinking.clone().store(false, Ordering::SeqCst);
-             if self.device.lock().unwrap().pin.clear_pwm().is_err(){
-                 println!("Could not clear pwm for pin");
-             };
+            if self.device.lock().unwrap().pin.clear_pwm().is_err() {
+                println!("Could not clear pwm for pin");
+            };
         }
 
-        fn write_state(&mut self, value:f64){
-            if !(value >= 0.0 && value<=1.0) {
+        fn write_state(&mut self, value: f64) {
+            if !(value >= 0.0 && value <= 1.0) {
                 println!("Value must be between 0.0 and 1.0");
                 return;
             }
             self.stop();
             if self.active_high() {
-                self.device.lock().unwrap().pin.set_pwm_frequency(100.0, value).unwrap()
-            }else{
-                self.device.lock().unwrap().pin.set_pwm_frequency(100.0, 1.0 - value).unwrap()
+                self.device
+                    .lock()
+                    .unwrap()
+                    .pin
+                    .set_pwm_frequency(100.0, value)
+                    .unwrap()
+            } else {
+                self.device
+                    .lock()
+                    .unwrap()
+                    .pin
+                    .set_pwm_frequency(100.0, 1.0 - value)
+                    .unwrap()
             }
-
-
         }
 
         /// Set the state for active_high
         pub fn set_active_high(&mut self, value: bool) {
             if value {
-                self.active_state=true;
-                self.inactive_state=false;
+                self.active_state = true;
+                self.inactive_state = false;
             } else {
-                self.active_state=false;
-                self.inactive_state=true;
+                self.active_state = false;
+                self.inactive_state = true;
             }
         }
         /// When ``True``, the `value` property is ``True`` when the device's
@@ -503,7 +507,7 @@ macro_rules! impl_pwm_device {
         pub fn off(&mut self) {
             self.write_state(0.0)
         }
-    }
+    };
 }
 
 impl PWMOutputDevice {
@@ -734,32 +738,35 @@ impl Servo {
     pub fn set_min_pulse_width(&mut self, value: u64) {
         if value >= self.max_pulse_width {
             println!("min_pulse_width must be less than max_pulse_width");
-            return;
         } else {
-            self.min_pulse_width = value
+            self.min_pulse_width = value;
         }
     }
+
     /// Set the servo's maximum pulse width
     pub fn set_max_pulse_width(&mut self, value: u64) {
         if value >= self.frame_width {
             println!("max_pulse_width must be less than frame_width");
-            return;
         } else {
-            self.max_pulse_width = value
+            self.max_pulse_width = value;
         }
     }
+
     /// Set the servo's frame width(The time between control pulses, measured in milliseconds.)
     pub fn set_frame_width(&mut self, value: u64) {
         self.frame_width = value;
     }
+
     /// Get the servo's minimum pulse width
     pub fn get_min_pulse_width(&mut self) -> u64 {
         self.min_pulse_width
     }
+
     /// Get the servo's maximum pulse width
     pub fn get_max_pulse_width(&mut self) -> u64 {
         self.max_pulse_width
     }
+
     /// Get the servo's frame width(The time between control pulses, measured in milliseconds.)
     pub fn get_frame_width(&mut self) -> u64 {
         self.frame_width
