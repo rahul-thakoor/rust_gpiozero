@@ -15,7 +15,7 @@ edition = "2018"
 
 
 [dependencies]
-rppal = "0.11.1"
+rppal = "0.11.3"
 
 [badges]
 travis-ci = { repository = "rahul-thakoor/rust_gpiozero", branch = "master" }
