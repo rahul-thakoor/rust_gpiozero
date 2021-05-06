@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.1
+
+* Support for Raspberry Pi 4
+
+  - upgraded [rppal](https://github.com/golemparts/rppal/) to `0.12.0`. See [Issue #12](https://github.com/rahul-thakoor/rust_gpiozero/issues/23)
+
 ## 0.2.0
 `rust_gpiozero` now uses [rppal](https://github.com/golemparts/rppal/) for gpio access
 
