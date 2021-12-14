@@ -80,7 +80,7 @@ To use `rust_gpiozero`, first add this to your Cargo.toml:
 
 ```toml
 [dependencies]
- rust_gpiozero = "0.2.0"
+ rust_gpiozero = "^0.2"
 ```
 Compiling your project on a Raspberry Pi directly can take significant time depending on the model. Ideally, you would cross compile your project then run it on the Raspberry Pi. 
 
