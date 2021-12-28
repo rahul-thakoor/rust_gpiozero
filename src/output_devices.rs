@@ -457,7 +457,7 @@ macro_rules! impl_pwm_device {
         }
 
         fn write_state(&mut self, value: f64) {
-            if !(value >= 0.0 && value <= 1.0) {
+            if !(0.0..=1.0).contains(&value) {
                 println!("Value must be between 0.0 and 1.0");
                 return;
             }
@@ -653,7 +653,7 @@ impl Motor {
     /// The speed at which the motor should turn.
     /// Can be any value between 0.0 (stopped) and the default 1.0 (maximum speed)
     pub fn set_speed(&mut self, speed: f64) {
-        if !(speed >= 0.0 && speed <= 1.0) {
+        if !(0.0..=1.0).contains(&speed) {
             println!("Speed must be between 0.0 and 1.0");
             return;
         }
