@@ -8,6 +8,10 @@ fn main() {
         // Add debouncing so that subsequent presses within 100ms don't trigger a press
         .debounce(Duration::from_millis(100));
 
-    button.wait_for_press(None);
-    println!("button pressed");
+    // Add an async interrupt to trigger whenever the button is pressed
+    button
+        .when_pressed(|_| {
+            println!("button pressed");
+        })
+        .unwrap();
 }

@@ -37,3 +37,6 @@ pub mod devices;
 pub mod output_devices;
 #[macro_use]
 pub mod input_devices;
+
+mod debounce;
+pub use debounce::{Debounce, Debounced};
