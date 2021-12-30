@@ -1,5 +1,5 @@
 //! Input device component interfaces for devices such as `Button`
-use rppal::gpio::{Gpio, InputPin, Level, Trigger};
+use rppal::gpio::{self, Gpio, InputPin, Level, Trigger};
 use std::time::Duration;
 
 /// Represents a generic GPIO input device.
@@ -17,7 +17,7 @@ impl InputDevice {
     /// # Arguments
     ///
     /// * `pin` - The GPIO pin which the device is attached to
-    ///  
+    ///
     pub fn new(pin: u8) -> InputDevice {
         match Gpio::new() {
             Err(e) => panic!("{:?}", e),
@@ -37,7 +37,7 @@ impl InputDevice {
     /// # Arguments
     ///
     /// * `pin` - The GPIO pin which the device is attached to
-    ///  
+    ///
     pub fn new_with_pullup(pin: u8) -> InputDevice {
         match Gpio::new() {
             Err(e) => panic!("{:?}", e),
@@ -61,30 +61,13 @@ macro_rules! impl_events_mixin {
     () => {
         /// Pause the program until the device is activated, or the timeout is reached.
         fn wait_for(&mut self, timeout: Option<f32>, active: bool) {
-            match timeout {
-                None => {
-                    if active {
-                        self.pin.set_interrupt(Trigger::RisingEdge).unwrap();
-                        self.pin.poll_interrupt(true, None).unwrap();
-                    } else {
-                        self.pin.set_interrupt(Trigger::FallingEdge).unwrap();
-                        self.pin.poll_interrupt(true, None).unwrap();
-                    }
-                }
-                Some(n) => {
-                    if active {
-                        self.pin.set_interrupt(Trigger::RisingEdge).unwrap();
-                        self.pin
-                            .poll_interrupt(true, Some(Duration::from_millis((n * 1000.0) as u64)))
-                            .unwrap();
-                    } else {
-                        self.pin.set_interrupt(Trigger::FallingEdge).unwrap();
-                        self.pin
-                            .poll_interrupt(true, Some(Duration::from_millis((n * 1000.0) as u64)))
-                            .unwrap();
-                    }
-                }
-            }
+            let trigger = match active {
+                true => Trigger::RisingEdge,
+                false => Trigger::FallingEdge,
+            };
+            let timeout = timeout.map(|seconds| Duration::from_millis((seconds * 1000.0) as u64));
+            self.pin.set_interrupt(trigger).unwrap();
+            self.pin.poll_interrupt(true, timeout).unwrap();
         }
     };
 }
@@ -98,7 +81,6 @@ pub struct DigitalInputDevice {
     pin: InputPin,
     active_state: bool,
     inactive_state: bool,
-    bounce_time: Option<f32>,
 }
 
 impl DigitalInputDevice {
@@ -120,7 +102,6 @@ impl DigitalInputDevice {
                     pin: pin.into_input_pulldown(),
                     active_state: true,
                     inactive_state: false,
-                    bounce_time: None,
                 },
             },
         }
@@ -131,7 +112,7 @@ impl DigitalInputDevice {
     /// # Arguments
     ///
     /// * `pin` - The GPIO pin which the device is attached to
-    ///  
+    ///
     pub fn new_with_pullup(pin: u8) -> DigitalInputDevice {
         match Gpio::new() {
             Err(e) => panic!("{:?}", e),
@@ -141,7 +122,6 @@ impl DigitalInputDevice {
                     pin: pin.into_input_pullup(),
                     active_state: false,
                     inactive_state: true,
-                    bounce_time: None,
                 },
             },
         }
@@ -168,12 +148,9 @@ impl DigitalInputDevice {
 /// Alternatively, connect one side of the button to the 3V3 pin, and the other to any GPIO pin,
 /// and then create a Button instance with Button::new_with_pulldown
 pub struct Button {
-    pin: InputPin,
+    pub(crate) pin: InputPin,
     active_state: bool,
     inactive_state: bool,
-    // FIXME: Implement debouncing
-    #[allow(dead_code)]
-    bounce_time: Option<f32>,
 }
 
 impl Button {
@@ -188,7 +165,6 @@ impl Button {
                     pin: pin.into_input_pullup(),
                     active_state: false,
                     inactive_state: true,
-                    bounce_time: None,
                 },
             },
         }
@@ -204,7 +180,6 @@ impl Button {
                     pin: pin.into_input_pulldown(),
                     active_state: true,
                     inactive_state: false,
-                    bounce_time: None,
                 },
             },
         }
@@ -225,5 +200,38 @@ impl Button {
     /// * `timeout` - Number of seconds to wait before proceeding. If this is None, then wait indefinitely until the device is active.
     pub fn wait_for_press(&mut self, timeout: Option<f32>) {
         self.wait_for(timeout, true)
+    }
+
+    /// Invokes the passed closure everytime the button is pressed
+    pub fn when_pressed<C>(&mut self, action: C) -> Result<(), gpio::Error>
+    where
+        C: FnMut(Level) + Send + 'static,
+    {
+        self.action_on(true, action)
+    }
+
+    /// Invokes the passed closure everytime the button is released
+    pub fn when_released<C>(&mut self, action: C) -> Result<(), gpio::Error>
+    where
+        C: FnMut(Level) + Send + 'static,
+    {
+        self.action_on(false, action)
+    }
+
+    /// Adds an async interrupt for the corresponding trigger type to support `when_pressed`/`when_released`
+    pub(crate) fn action_on<C>(&mut self, active: bool, action: C) -> Result<(), gpio::Error>
+    where
+        C: FnMut(Level) + Send + 'static,
+    {
+        let trigger = match active {
+            true => Trigger::RisingEdge,
+            false => Trigger::FallingEdge,
+        };
+        self.pin.set_async_interrupt(trigger, action)
+    }
+
+    /// Removes all previously configured async trigger(s) (E.g. `when_pressed`/`when_released`)
+    pub fn clear_async_interrupt(&mut self) -> Result<(), gpio::Error> {
+        self.pin.clear_async_interrupt()
     }
 }
