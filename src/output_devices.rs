@@ -794,4 +794,14 @@ impl Servo {
     pub fn get_frame_width(&mut self) -> u64 {
         self.frame_width
     }
+
+    pub fn detach(&mut self) {
+         if self
+            .pin
+            .clear_pwm()
+            .is_err()
+        {
+            println!("Failed to detach servo")
+        }
+   }
 }
