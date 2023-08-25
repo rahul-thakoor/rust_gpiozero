@@ -734,6 +734,29 @@ impl Servo {
         }
     }
 
+    /// Set servo to any position between min and max.
+    /// value must be between -1 (the minimun position) and +1 (the maximum position).
+    pub fn set_position(&mut self, value: f64) {
+        if value >= -1.0 && value <= 1.0 {
+            // Map value form [-1, 1] to [min_pulse_width, max_pulse_width] linearly
+            let range: f64 = (self.max_pulse_width - self.min_pulse_width) as f64;
+            let pulse_width: u64 = self.min_pulse_width + (((value + 1.0)/2.0) * range).round() as u64;
+            if self
+                .pin
+                .set_pwm(
+                    Duration::from_millis(self.frame_width),
+                    Duration::from_micros(pulse_width),
+                )
+                .is_err()
+            {
+                println!("Failed to set servo to a new position");
+            }
+        }
+        else {
+            println!("set_position value must be between -1 and 1");
+        }
+    }
+ 
     /// Set the servo's minimum pulse width
     pub fn set_min_pulse_width(&mut self, value: u64) {
         if value >= self.max_pulse_width {
