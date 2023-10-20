@@ -256,6 +256,22 @@ impl DigitalOutputDevice {
     }
 }
 
+pub struct RGBLED {
+    pub red: LED,
+    pub green: LED,
+    pub blue: LED,
+}
+
+impl RGBLED {
+    pub fn new(pin_red: u8, pin_green: u8, pin_blue: u8) -> RGBLED {
+        RGBLED {
+            red: LED::new(pin_red),
+            green: LED::new(pin_green),
+            blue: LED::new(pin_blue),
+        }
+    }
+}
+
 ///  Represents a light emitting diode (LED)
 ///
 /// # Example
@@ -740,7 +756,8 @@ impl Servo {
         if value >= -1.0 && value <= 1.0 {
             // Map value form [-1, 1] to [min_pulse_width, max_pulse_width] linearly
             let range: f64 = (self.max_pulse_width - self.min_pulse_width) as f64;
-            let pulse_width: u64 = self.min_pulse_width + (((value + 1.0)/2.0) * range).round() as u64;
+            let pulse_width: u64 =
+                self.min_pulse_width + (((value + 1.0) / 2.0) * range).round() as u64;
             if self
                 .pin
                 .set_pwm(
@@ -751,12 +768,11 @@ impl Servo {
             {
                 println!("Failed to set servo to a new position");
             }
-        }
-        else {
+        } else {
             println!("set_position value must be between -1 and 1");
         }
     }
- 
+
     /// Set the servo's minimum pulse width
     pub fn set_min_pulse_width(&mut self, value: u64) {
         if value >= self.max_pulse_width {
@@ -796,12 +812,8 @@ impl Servo {
     }
 
     pub fn detach(&mut self) {
-         if self
-            .pin
-            .clear_pwm()
-            .is_err()
-        {
+        if self.pin.clear_pwm().is_err() {
             println!("Failed to detach servo")
         }
-   }
+    }
 }
