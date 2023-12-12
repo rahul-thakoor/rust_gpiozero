@@ -15,5 +15,5 @@ edition = "2018"
 
 
 [dependencies]
-rppal = "0.12.0"
+rppal = "0.16.0"
 
