@@ -139,22 +139,26 @@ macro_rules! impl_digital_output_device {
                     Some(end) => {
                         for _ in 0..end {
                             if !blinking.load(Ordering::SeqCst) {
-                                device.lock().unwrap().off();
                                 break;
                             }
                             device.lock().unwrap().on();
                             thread::sleep(Duration::from_millis((on_time * 1000.0) as u64));
+                            if !blinking.load(Ordering::SeqCst) {
+                                break;
+                            }
                             device.lock().unwrap().off();
                             thread::sleep(Duration::from_millis((off_time * 1000.0) as u64));
                         }
                     }
                     None => loop {
                         if !blinking.load(Ordering::SeqCst) {
-                            device.lock().unwrap().off();
                             break;
                         }
                         device.lock().unwrap().on();
                         thread::sleep(Duration::from_millis((on_time * 1000.0) as u64));
+                        if !blinking.load(Ordering::SeqCst) {
+                            break;
+                        }
                         device.lock().unwrap().off();
                         thread::sleep(Duration::from_millis((off_time * 1000.0) as u64));
                     },
@@ -188,7 +192,6 @@ macro_rules! impl_digital_output_device {
 
         fn stop(&self) {
             self.blinking.clone().store(false, Ordering::SeqCst);
-            self.device.lock().unwrap().pin.set_low();
         }
 
         /// When ``True``, the `value` property is ``True`` when the device's
