@@ -6,6 +6,7 @@ use std::sync::Mutex;
 use std::thread;
 use std::thread::JoinHandle;
 use std::time::Duration;
+use palette::rgb::Rgb;
 
 /// Represents a generic GPIO output device.
 #[derive(Debug)]
@@ -254,6 +255,226 @@ impl DigitalOutputDevice {
     pub fn set_blink_count(&mut self, n: i32) {
         self.blink_count = Some(n)
     }
+}
+
+pub struct RGBLED {
+    devices: [Arc<Mutex<OutputDevice>>; 3],
+    on_color: Rgb,
+    off_color: Rgb,
+    blinking: Arc<AtomicBool>,
+    handle: Option<JoinHandle<()>>,
+    blink_count: Option<i32>,
+}
+
+impl RGBLED {
+    pub fn new(pin_red: u8, pin_green: u8, pin_blue: u8) -> RGBLED {
+        RGBLED {
+            devices: [
+                Arc::new(Mutex::new(OutputDevice::new(pin_red))),
+                Arc::new(Mutex::new(OutputDevice::new(pin_green))),
+                Arc::new(Mutex::new(OutputDevice::new(pin_blue))),
+            ],
+            on_color: Rgb::new(1.0, 1.0, 1.0),
+            off_color: Rgb::new(0.0, 0.0, 0.0),
+            blinking: Arc::new(AtomicBool::new(false)),
+            handle: None,
+            blink_count: None,
+        }
+    }
+
+    pub fn set_color(&mut self, color: Rgb) {
+        Self::write_color(&self.devices, color);
+    }
+
+    fn write_color(devices: &[Arc<Mutex<OutputDevice>>; 3], color: Rgb) {
+        Self::write_state(&devices[0], color.red > 0.5);
+        Self::write_state(&devices[1], color.green > 0.5);
+        Self::write_state(&devices[2], color.blue > 0.5);
+    }
+
+    fn write_state(device: &Arc<Mutex<OutputDevice>>, value: bool) {
+        if device.lock().unwrap().value_to_state(value) {
+            device.lock().unwrap().pin.set_high()
+        } else {
+            device.lock().unwrap().pin.set_low()
+        }
+    }
+
+    fn blinker(&mut self, on_time: f32, off_time: f32, on_color: Rgb, off_color: Rgb, n: Option<i32>) {
+        self.stop();
+
+        let devices = [
+            Arc::clone(&self.devices[0]),
+            Arc::clone(&self.devices[1]),
+            Arc::clone(&self.devices[2]),
+        ];
+        let blinking = Arc::clone(&self.blinking);
+
+        self.handle = Some(thread::spawn(move || {
+            blinking.store(true, Ordering::SeqCst);
+            match n {
+                Some(end) => {
+                    for _ in 0..end {
+                        if !blinking.load(Ordering::SeqCst) {
+                            devices[0].lock().unwrap().off();
+                            devices[1].lock().unwrap().off();
+                            devices[2].lock().unwrap().off();
+                            break;
+                        }
+                        Self::write_color(&devices, on_color);
+                        thread::sleep(Duration::from_millis((on_time * 1000.0) as u64));
+                        Self::write_color(&devices, off_color);
+                        thread::sleep(Duration::from_millis((off_time * 1000.0) as u64));
+                    }
+                }
+                None => loop {
+                    if !blinking.load(Ordering::SeqCst) {
+                        devices[0].lock().unwrap().off();
+                        devices[1].lock().unwrap().off();
+                        devices[2].lock().unwrap().off();
+                        break;
+                    }
+                    Self::write_color(&devices, on_color);
+                    thread::sleep(Duration::from_millis((on_time * 1000.0) as u64));
+                    Self::write_color(&devices, off_color);
+                    thread::sleep(Duration::from_millis((off_time * 1000.0) as u64));
+                },
+            }
+        }));
+    }
+    /// Returns ``True`` if the device is currently active and ``False`` otherwise.
+    pub fn is_active(&self) -> bool {
+        self.devices[0].lock().unwrap().is_active()
+            || self.devices[1].lock().unwrap().is_active()
+            || self.devices[2].lock().unwrap().is_active()
+    }
+    /// Turns the device on.
+    pub fn on(&self) {
+        self.stop();
+        self.devices[0].lock().unwrap().on();
+        self.devices[1].lock().unwrap().on();
+        self.devices[2].lock().unwrap().on();
+    }
+    /// Turns the device off.
+    pub fn off(&self) {
+        self.stop();
+        self.devices[0].lock().unwrap().off();
+        self.devices[1].lock().unwrap().off();
+        self.devices[2].lock().unwrap().off();
+    }
+    /// Reverse the state of the device. If it's on, turn it off; if it's off, turn it on.
+    pub fn toggle(&mut self) {
+        if self.is_active() {
+            self.on()
+        } else {
+            self.off()
+        }
+    }
+
+    /// Returns ``True`` if the device is currently active and ``False`` otherwise.
+    pub fn value_red(&self) -> bool {
+        self.devices[0].lock().unwrap().value()
+    }
+
+    /// Returns ``True`` if the device is currently active and ``False`` otherwise.
+    pub fn value_green(&self) -> bool {
+        self.devices[0].lock().unwrap().value()
+    }
+
+    /// Returns ``True`` if the device is currently active and ``False`` otherwise.
+    pub fn value_blue(&self) -> bool {
+        self.devices[0].lock().unwrap().value()
+    }
+
+    fn stop(&self) {
+        self.blinking.clone().store(false, Ordering::SeqCst);
+        self.devices[0].lock().unwrap().pin.set_low();
+        self.devices[1].lock().unwrap().pin.set_low();
+        self.devices[2].lock().unwrap().pin.set_low();
+    }
+
+//    /// When ``True``, the `value` property is ``True`` when the device's
+//    /// `pin` is high. When ``False`` the `value` property is
+//    /// ``True`` when the device's pin is low (i.e. the value is inverted).
+//    /// Be warned that changing it will invert `value` (i.e. changing this property doesn't change
+//    /// the device's pin state - it just changes how that state is interpreted).
+    pub fn active_high(&self) -> bool {
+        self.device_red.lock().unwrap().active_high()
+        self.device_green.lock().unwrap().active_high()
+        self.device_blue.lock().unwrap().active_high()
+    }
+
+//    /// Set the state for active_high
+//    pub fn set_active_high(&mut self, value: bool) {
+//        self.device_red.lock().unwrap().set_active_high(value)
+//        self.device_green.lock().unwrap().set_active_high(value)
+//        self.device_blue.lock().unwrap().set_active_high(value)
+//    }
+
+//    /// The `Pin` that the device is connected to.
+//    pub fn pin_red(&self) -> u8 {
+//        self.device_red.lock().unwrap().pin.pin()
+//    }
+
+//    /// The `Pin` that the device is connected to.
+//    pub fn pin_green(&self) -> u8 {
+//        self.device_green.lock().unwrap().pin.pin()
+//    }
+
+//    /// The `Pin` that the device is connected to.
+//    pub fn pin_blue(&self) -> u8 {
+//        self.device_blue.lock().unwrap().pin.pin()
+//    }
+
+//    /// Shut down the device and release all associated resources.
+//    pub fn close(self) {
+//        drop(self)
+//    }
+
+    /// Block until background process is done
+    pub fn wait(&mut self) {
+        self.handle
+            .take()
+            .expect("Called stop on non-running thread")
+            .join()
+            .expect("Could not join spawned thread");
+    }
+
+    /// Make the device turn on and off repeatedly in the background.
+    /// Use `set_blink_count` to set the number of times to blink the device
+    /// * `on_time` - Number of seconds on
+    /// * `off_time` - Number of seconds off
+    ///
+    pub fn blink(&mut self, on_time: f32, off_time: f32, on_color: Rgb, off_color: Rgb) {
+        match self.blink_count {
+            None => self.blinker(on_time, off_time, on_color, off_color, None),
+            Some(n) => self.blinker(on_time, off_time, on_color, off_color, Some(n)),
+        }
+    }
+    /// Set the number of times to blink the device
+    /// * `n` - Number of times to blink
+    pub fn set_blink_count(&mut self, n: i32) {
+        self.blink_count = Some(n)
+    }
+
+//
+//    pub fn is_active(&self) -> bool {
+//        self.red.is_active() || self.blue.is_active() || self.green.is_active()
+//    }
+//
+//    pub fn is_lit(&self) -> bool {
+//        self.is_active()
+//    }
+//
+//    fn set_blink_count(&mut self, n: i32) {
+//        self.red.set_blink_count(n);
+//        self.green.set_blink_count(n);
+//        self.blue.set_blink_count(n);
+//    }
+//
+//    fn set_blink_colors(&mut self, on_color: Rgb, off_color: Rgb) {
+//    }
+//
 }
 
 ///  Represents a light emitting diode (LED)
@@ -740,7 +961,8 @@ impl Servo {
         if value >= -1.0 && value <= 1.0 {
             // Map value form [-1, 1] to [min_pulse_width, max_pulse_width] linearly
             let range: f64 = (self.max_pulse_width - self.min_pulse_width) as f64;
-            let pulse_width: u64 = self.min_pulse_width + (((value + 1.0)/2.0) * range).round() as u64;
+            let pulse_width: u64 =
+                self.min_pulse_width + (((value + 1.0) / 2.0) * range).round() as u64;
             if self
                 .pin
                 .set_pwm(
@@ -751,12 +973,11 @@ impl Servo {
             {
                 println!("Failed to set servo to a new position");
             }
-        }
-        else {
+        } else {
             println!("set_position value must be between -1 and 1");
         }
     }
- 
+
     /// Set the servo's minimum pulse width
     pub fn set_min_pulse_width(&mut self, value: u64) {
         if value >= self.max_pulse_width {
@@ -796,12 +1017,8 @@ impl Servo {
     }
 
     pub fn detach(&mut self) {
-         if self
-            .pin
-            .clear_pwm()
-            .is_err()
-        {
+        if self.pin.clear_pwm().is_err() {
             println!("Failed to detach servo")
         }
-   }
+    }
 }
